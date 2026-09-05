@@ -12,16 +12,23 @@ This is the exact repo layout — every subagent and any Claude Code session sho
 ```
 vasooli/
 ├── .claude/
-│   └── agents/
+│   ├── agents/
+│   │   ├── data-schema-agent.md
+│   │   ├── pipeline-logic-agent.md
+│   │   ├── dashboard-agent.md
+│   │   └── qa-demo-agent.md
+│   └── commands/                      # slash-command mirrors of agents/ (see commands/README.md)
 │       ├── data-schema-agent.md
 │       ├── pipeline-logic-agent.md
 │       ├── dashboard-agent.md
-│       └── qa-demo-agent.md
+│       ├── qa-demo-agent.md
+│       └── README.md
 │
 ├── docs/
 │   ├── vasooli-mrd.md
 │   ├── vasooli-prd.md
-│   └── vasooli-technical-architecture.md
+│   ├── vasooli-technical-architecture.md
+│   └── qa-verification-report.md      # Milestone 5 QA pass evidence
 │
 ├── backend/
 │   ├── cmd/
@@ -29,31 +36,44 @@ vasooli/
 │   │       └── main.go
 │   ├── internal/
 │   │   ├── detector/
-│   │   │   └── detector.go
+│   │   │   ├── detector.go
+│   │   │   └── detector_test.go
 │   │   ├── diagnosis/
-│   │   │   └── diagnosis.go
+│   │   │   ├── diagnosis.go
+│   │   │   └── diagnosis_test.go
 │   │   ├── strategy/
-│   │   │   └── strategy.go
+│   │   │   ├── strategy.go
+│   │   │   └── strategy_test.go
 │   │   ├── guardrail/
 │   │   │   ├── guardrail.go
-│   │   │   └── caps_config.go        # config table for the fixed caps
+│   │   │   ├── caps_config.go        # config table for the fixed caps
+│   │   │   └── guardrail_test.go
 │   │   ├── execution/
-│   │   │   └── execution.go
+│   │   │   ├── execution.go
+│   │   │   ├── fixture_scenarios.go  # reads the fixture's scripted demo scenarios
+│   │   │   └── execution_test.go
 │   │   ├── promise/
-│   │   │   └── promise.go
+│   │   │   ├── promise.go
+│   │   │   └── promise_test.go
 │   │   ├── audit/
-│   │   │   └── audit.go
+│   │   │   ├── audit.go
+│   │   │   └── audit_test.go
 │   │   ├── pipeline/
-│   │   │   └── pipeline.go           # orchestrator - calls stages in order
+│   │   │   ├── pipeline.go           # orchestrator - calls stages in order
+│   │   │   └── pipeline_test.go
 │   │   ├── api/
 │   │   │   ├── handlers.go
-│   │   │   └── dto.go                # request/response shapes
+│   │   │   ├── dto.go                # request/response shapes
+│   │   │   ├── api_test.go
+│   │   │   └── simulate_test.go
 │   │   └── db/
 │   │       ├── db.go
-│   │       └── queries.go
+│   │       ├── queries.go
+│   │       └── queries_api.go        # queries backing the read-only API endpoints
 │   ├── migrations/
 │   │   ├── 0001_init_schema.sql
-│   │   └── ...
+│   │   ├── 0002_seed_demo_data.sql
+│   │   └── 0003_add_audit_log_amount.sql
 │   ├── fixtures/
 │   │   └── demo_dataset.json         # fixed synthetic batch, deterministic
 │   ├── go.mod
@@ -61,20 +81,49 @@ vasooli/
 │
 ├── frontend/
 │   ├── src/
+│   │   ├── layout/
+│   │   │   ├── Layout.tsx            # persistent sidebar shell, wraps every route
+│   │   │   ├── Sidebar.tsx           # nav + global Run Batch action
+│   │   │   └── Sidebar.test.tsx
+│   │   ├── context/
+│   │   │   ├── DashboardDataContext.tsx   # provider (Overview + Cases shared state)
+│   │   │   ├── dashboardDataContextBase.ts
+│   │   │   └── useDashboardData.ts
 │   │   ├── pages/
-│   │   │   ├── SummaryView.tsx
+│   │   │   ├── OverviewPage.tsx      # stat tiles, charts, guardrail policy card
+│   │   │   ├── CasesPage.tsx         # insights panel + case table
 │   │   │   ├── CaseDetailView.tsx
-│   │   │   └── GuardrailSpotlight.tsx
+│   │   │   ├── GuardrailSpotlight.tsx
+│   │   │   ├── CaseSimulator.tsx
+│   │   │   └── CaseSimulator.test.tsx
 │   │   ├── components/
 │   │   │   ├── ReasoningChain.tsx
 │   │   │   ├── TierBreakdownChart.tsx
-│   │   │   └── ...
+│   │   │   ├── RootCauseChart.tsx
+│   │   │   ├── RecoveryBreakdown.tsx
+│   │   │   ├── StatTile.tsx
+│   │   │   ├── StatusBadge.tsx
+│   │   │   ├── AgentBadge.tsx
+│   │   │   ├── CaseTable.tsx
+│   │   │   ├── CaseTable.test.tsx
+│   │   │   ├── InsightsPanel.tsx
+│   │   │   ├── GuardrailPolicyCard.tsx
+│   │   │   ├── GuardrailPolicyCard.test.tsx
+│   │   │   ├── SimulatorPanel.tsx
+│   │   │   └── MessagePreview.tsx
+│   │   ├── lib/
+│   │   │   ├── format.ts             # labels, colors, formatting helpers
+│   │   │   ├── messagePreview.ts     # per-tier/channel customer-message templates
+│   │   │   ├── messagePreview.test.ts
+│   │   │   └── toReasoningSteps.ts   # maps SimulateResponse -> ReasoningStep[]
 │   │   ├── api/
-│   │   │   └── client.ts             # typed client for backend REST endpoints
+│   │   │   ├── client.ts             # typed client for backend REST endpoints
+│   │   │   └── types.ts              # response/request shapes, mirrors dto.go
+│   │   ├── index.css                 # design tokens: palette, type scale, radius
 │   │   ├── App.tsx
 │   │   └── main.tsx
 │   ├── package.json
-│   └── vite.config.ts (or equivalent)
+│   └── vite.config.ts
 │
 ├── .env.example                       # DATABASE_URL, ALLOWED_ORIGIN, PORT, DEMO_SEED_PATH
 ├── .gitignore
@@ -181,4 +230,4 @@ Same topology as Command Centre — reuse existing env var patterns for `DATABAS
 | `/frontend/*` | `dashboard-agent` |
 | none (read-only verification) | `qa-demo-agent` |
 
-Keeping this mapping explicit avoids two subagents editing the same files in parallel.
+Keeping this mapping explicit avoids two subagents editing the same files in parallel. Confirmed current: the frontend directories added after the original build (`layout/`, `context/`, `lib/`) all fall under the existing `/frontend/*` wildcard — no new row needed, no file in the repo currently falls outside this mapping.

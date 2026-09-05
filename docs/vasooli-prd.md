@@ -77,13 +77,13 @@ Ship a working system that ingests a batch of failed/at-risk synthetic transacti
 
 ## 6. Build Milestones (so something demoable exists at every checkpoint)
 
-1. **Milestone 1 — Data + pipeline skeleton:** synthetic dataset defined, Postgres schema live, Detector → Diagnosis → Strategy running end-to-end with placeholder logic (even if diagnosis is just rule-based lookup at first)
-2. **Milestone 2 — Guardrails + execution:** Policy Guardrail Agent wired in, mocked Execution Agent producing outcomes, disputed-case lockout working
-3. **Milestone 3 — Promise tracking + audit log:** commitments logged, broken-promise escalation working, full audit trail persisted per case
-4. **Milestone 4 — Dashboard:** summary view, case detail reasoning trace, guardrail spotlight
-5. **Milestone 5 — Polish for demo:** confirm deterministic outcomes on the exact demo dataset, rehearse the 5-step demo script from the MRD
+- [x] **Milestone 1 — Data + pipeline skeleton:** synthetic dataset defined, Postgres schema live, Detector → Diagnosis → Strategy running end-to-end with placeholder logic (even if diagnosis is just rule-based lookup at first)
+- [x] **Milestone 2 — Guardrails + execution:** Policy Guardrail Agent wired in, mocked Execution Agent producing outcomes, disputed-case lockout working
+- [x] **Milestone 3 — Promise tracking + audit log:** commitments logged, broken-promise escalation working, full audit trail persisted per case
+- [x] **Milestone 4 — Dashboard:** summary view, case detail reasoning trace, guardrail spotlight
+- [x] **Milestone 5 — Polish for demo:** confirm deterministic outcomes on the exact demo dataset, rehearse the 5-step demo script from the MRD
 
-If time runs short, Milestones 1–3 are the non-negotiable core (they carry the explainability/bounded/gated story). Milestone 4 can degrade to a simpler table view if needed — the dashboard is presentation, not the differentiator itself.
+All 5 milestones are complete and verified (see `docs/qa-verification-report.md` for the Milestone 5 QA pass, and section 10 below for what was built beyond this original scope). Milestones 1–3 were treated as the non-negotiable core throughout — they carry the explainability/bounded/gated story.
 
 ## 7. Out of Scope
 
@@ -103,3 +103,17 @@ If time runs short, Milestones 1–3 are the non-negotiable core (they carry the
 
 - Diagnosis Agent: rule-based core + LLM-generated explanation text (recommended) vs LLM-driven classification
 - Policy caps: hardcoded constants vs a small config table (recommended: config table)
+
+## 10. Stretch Features Built Beyond Original Scope
+
+Once Milestones 1–5 were complete and verified, the build continued past this document's original definition. Same acceptance-criteria spirit as section 5 — what each addition does, and why it was worth adding:
+
+| Feature | What it does | Why it was added |
+|---|---|---|
+| Guardrail Policy panel | A live read-out of the fixed caps (max contact attempts, max discount %, contact-hours window) on the Overview page, sourced directly from the same config the pipeline enforces | "Bounded" is a core differentiator claim (MRD section 2) — showing the actual live caps, not just describing them in a doc, makes that claim self-evident rather than asserted |
+| Case Simulator + Compare mode | Runs a hypothetical case's inputs through the real `diagnosis → strategy → guardrail` chain (stateless, nothing persisted) and renders the reasoning chain; Compare mode runs two scenarios side by side | Lets a judge (or anyone) test edge cases live — e.g. "what if this were disputed instead?" — against the genuine decision logic, not a canned example, directly reinforcing the explainability story |
+| Message Preview | The actual templated customer-facing message (SMS/email) a case's tier and channel would produce, shown on Case Detail View; escalate/silent_retry show an explicit "no customer message" state rather than a blank one | Turns an abstract tier decision ("nudge") into a concrete, readable artifact — closes the gap between "the system decided X" and "here's literally what the customer would have received" |
+| Sidebar restructure | Split the original single-page summary into a persistent-sidebar, multi-page dashboard (Overview / Cases / Guardrail Spotlight / Simulator) with data shared across pages via context, refreshed correctly on a global "Run Batch" action | The dashboard outgrew a single scrollable page once the policy panel, simulator, and message preview were added — a persistent nav keeps every surface reachable without re-triggering stale data across pages |
+| Premium visual design system | A centralized, validated color/typography token system (Inter typeface, a 3-color status system reused across every badge/chart, an ordinal severity ramp for the 4 tiers) applied consistently across all pages | The original dashboard used ad hoc, inconsistent colors per component (e.g. 4 unrelated hues for what is actually a severity progression) — a validated, consistent system reads as considered rather than default-styled to a judge |
+
+None of these were required by the original PRD acceptance criteria (section 5) — all 8 rows there were already met before this work began.
