@@ -1,53 +1,14 @@
-import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { getBatchSummary, listCases, runBatch } from '../api/client'
-import type { BatchSummary, CaseSummary } from '../api/types'
-import { CaseTable } from '../components/CaseTable'
 import { GuardrailPolicyCard } from '../components/GuardrailPolicyCard'
-import { InsightsPanel } from '../components/InsightsPanel'
 import { RecoveryBreakdown } from '../components/RecoveryBreakdown'
 import { RootCauseChart } from '../components/RootCauseChart'
 import { StatTile } from '../components/StatTile'
 import { TierBreakdownChart } from '../components/TierBreakdownChart'
+import { useDashboardData } from '../context/useDashboardData'
 import { formatMoney } from '../lib/format'
 
-export function SummaryView() {
-  const [summary, setSummary] = useState<BatchSummary | null>(null)
-  const [cases, setCases] = useState<CaseSummary[]>([])
-  const [loading, setLoading] = useState(true)
-  const [running, setRunning] = useState(false)
-  const [error, setError] = useState<string | null>(null)
-
-  const loadData = useCallback(async () => {
-    setLoading(true)
-    setError(null)
-    try {
-      const [summaryData, casesData] = await Promise.all([getBatchSummary(), listCases()])
-      setSummary(summaryData)
-      setCases(casesData)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to load dashboard data.')
-    } finally {
-      setLoading(false)
-    }
-  }, [])
-
-  useEffect(() => {
-    loadData()
-  }, [loadData])
-
-  const handleRunBatch = async () => {
-    setRunning(true)
-    setError(null)
-    try {
-      await runBatch()
-      await loadData()
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Failed to run the batch.')
-    } finally {
-      setRunning(false)
-    }
-  }
+export function OverviewPage() {
+  const { cases, summary, loading, error } = useDashboardData()
 
   const disputedCaseExists = cases.some((c) => c.rootCause === 'disputed')
   const escalatedCount = cases.filter((c) => c.status === 'escalated').length
@@ -58,24 +19,12 @@ export function SummaryView() {
 
   return (
     <div className="mx-auto max-w-6xl space-y-6 p-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold tracking-tight text-ink">Vasooli — Batch Summary</h1>
-          <p className="text-sm text-ink-secondary">AI revenue recovery: diagnosis, strategy, and guardrails, fully explainable.</p>
-        </div>
-        <button
-          type="button"
-          onClick={handleRunBatch}
-          disabled={running}
-          className="rounded-control bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink-secondary disabled:opacity-50"
-        >
-          {running ? 'Running…' : 'Run Batch'}
-        </button>
+      <div>
+        <h1 className="text-2xl font-bold tracking-tight text-ink">Overview</h1>
+        <p className="text-sm text-ink-secondary">AI revenue recovery: diagnosis, strategy, and guardrails, fully explainable.</p>
       </div>
 
-      {error && (
-        <p className="rounded-card bg-critical-bg p-3 text-sm text-critical-text">{error}</p>
-      )}
+      {error && <p className="rounded-card bg-critical-bg p-3 text-sm text-critical-text">{error}</p>}
 
       {loading ? (
         <p className="text-sm text-ink-secondary">Loading…</p>
@@ -122,16 +71,6 @@ export function SummaryView() {
               1 case required a policy lockout — see why the system refused to act →
             </Link>
           )}
-
-          <div>
-            <h2 className="mb-3 text-xs font-bold tracking-wide text-ink-muted uppercase">Insights</h2>
-            <InsightsPanel cases={cases} />
-          </div>
-
-          <div>
-            <h2 className="mb-3 text-xs font-bold tracking-wide text-ink-muted uppercase">Cases</h2>
-            <CaseTable cases={cases} />
-          </div>
         </>
       )}
     </div>

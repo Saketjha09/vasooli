@@ -8,7 +8,7 @@ function formatHour(hour: number): string {
 
 /**
  * Quiet, read-only context card: "here's what governs every automated
- * decision." Fetches independently of the rest of SummaryView's data (it
+ * decision." Fetches independently of the shared DashboardDataContext (it
  * doesn't depend on any case/batch data existing — guardrail.Caps is fixed
  * server config, always available) so it never blocks on, or is blocked by,
  * the batch-run state. Degrades gracefully before any batch has run: the
