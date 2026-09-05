@@ -99,3 +99,39 @@ export interface AuditEntry {
 export interface ApiErrorBody {
   error: string
 }
+
+/**
+ * Request body for POST /api/simulate — a hypothetical case's inputs, not a
+ * real transaction. failureCode is required unless disputedFlag is true
+ * (diagnosis.Classify checks disputed status first, unconditionally, before
+ * ever looking at the failure code).
+ */
+export interface SimulateRequest {
+  failureCode: string
+  historyScore: number
+  disputedFlag: boolean
+  doNotContact: boolean
+  simulatedHour: number
+  priorContactAttempts: number
+}
+
+/**
+ * Response to POST /api/simulate: the genuine output of
+ * diagnosis.Classify -> strategy.SelectTier -> guardrail.Check run against
+ * the hypothetical inputs — nothing persisted. tierChosen is Strategy's own
+ * pick before guardrail; guardrailFinalTier may differ if guardrail blocked
+ * or held it.
+ */
+export interface SimulateResponse {
+  rootCause: string
+  confidence: number
+  diagnosisEvidence: string[]
+  tierChosen: string
+  strategyAlternatives: string[]
+  guardrailAllowed: boolean
+  guardrailHeld: boolean
+  guardrailFinalTier: string
+  guardrailRuleFired: string
+  guardrailReason: string
+  guardrailEvidence: string[]
+}

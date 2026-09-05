@@ -6,6 +6,8 @@ import type {
   CaseDetail,
   CaseSummary,
   GuardrailPolicy,
+  SimulateRequest,
+  SimulateResponse,
 } from './types'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
@@ -68,4 +70,13 @@ export function getGuardrailSpotlight(): Promise<CaseDetail> {
 /** GET /api/guardrail/policy — the fixed caps, sourced from server config not case data. */
 export function getGuardrailPolicy(): Promise<GuardrailPolicy> {
   return request<GuardrailPolicy>('/api/guardrail/policy')
+}
+
+/** POST /api/simulate — stateless: runs hypothetical inputs through the real pipeline logic, nothing persisted. */
+export function simulateCase(body: SimulateRequest): Promise<SimulateResponse> {
+  return request<SimulateResponse>('/api/simulate', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(body),
+  })
 }

@@ -119,3 +119,26 @@ const INSIGHT_SUGGESTIONS: Record<string, string> = {
 export function insightSuggestion(rootCause: string): string {
   return INSIGHT_SUGGESTIONS[rootCause] ?? 'consider a manual review of this root cause'
 }
+
+/**
+ * The 8 failure codes diagnosis.Classify actually maps (see
+ * backend/internal/diagnosis/diagnosis.go's failureCodeMap) — this is the
+ * exact, exhaustive input set /api/simulate's failureCode field accepts
+ * (aside from disputedFlag, which overrides it entirely). Any other value
+ * gets a 400 from the real backend, not a simulated approximation.
+ */
+export const FAILURE_CODE_OPTIONS: { code: string; rootCause: string }[] = [
+  { code: 'GATEWAY_TIMEOUT', rootCause: 'transient_gateway' },
+  { code: 'BANK_SERVER_ERROR', rootCause: 'transient_gateway' },
+  { code: 'CARD_EXPIRED', rootCause: 'card_expired' },
+  { code: 'INSUFFICIENT_FUNDS', rootCause: 'insufficient_funds' },
+  { code: 'CHECKOUT_ABANDONED', rootCause: 'checkout_friction' },
+  { code: 'OTP_TIMEOUT', rootCause: 'checkout_friction' },
+  { code: 'INVOICE_OVERDUE_NO_RESPONSE', rootCause: 'willful_nonpayment' },
+  { code: 'PAYMENT_DECLINED_REPEATED', rootCause: 'willful_nonpayment' },
+]
+
+export function failureCodeLabel(code: string): string {
+  const opt = FAILURE_CODE_OPTIONS.find((o) => o.code === code)
+  return opt ? `${rootCauseLabel(opt.rootCause)} — ${opt.code}` : code
+}

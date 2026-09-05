@@ -107,7 +107,12 @@ export function SummaryView() {
             </div>
           </div>
 
-          <GuardrailPolicyCard />
+          <div className="space-y-2">
+            <GuardrailPolicyCard />
+            <Link to="/simulate" className="inline-block text-sm font-medium text-slate-600 hover:text-slate-900 hover:underline">
+              Try the simulator — test a hypothetical case against these rules →
+            </Link>
+          </div>
 
           {disputedCaseExists && (
             <Link
