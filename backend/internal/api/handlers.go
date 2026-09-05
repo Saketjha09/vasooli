@@ -181,6 +181,7 @@ func caseRowToSummaryDTO(row db.CaseRow) CaseSummaryDTO {
 	return CaseSummaryDTO{
 		CaseID: row.CaseID, TransactionID: row.TransactionID, RootCause: row.RootCause,
 		Confidence: row.Confidence, TierChosen: row.TierChosen, Status: row.Status, Amount: row.Amount,
+		TransactionAmount: row.TransactionAmount,
 	}
 }
 

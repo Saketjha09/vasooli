@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom'
 import { getBatchSummary, listCases, runBatch } from '../api/client'
 import type { BatchSummary, CaseSummary } from '../api/types'
 import { CaseTable } from '../components/CaseTable'
+import { InsightsPanel } from '../components/InsightsPanel'
+import { RecoveryBreakdown } from '../components/RecoveryBreakdown'
+import { RootCauseChart } from '../components/RootCauseChart'
 import { StatTile } from '../components/StatTile'
 import { TierBreakdownChart } from '../components/TierBreakdownChart'
 import { formatMoney } from '../lib/format'
@@ -46,9 +49,14 @@ export function SummaryView() {
   }
 
   const disputedCaseExists = cases.some((c) => c.rootCause === 'disputed')
+  const escalatedCount = cases.filter((c) => c.status === 'escalated').length
+  const rootCauseCounts = cases.reduce<Record<string, number>>((acc, c) => {
+    acc[c.rootCause] = (acc[c.rootCause] ?? 0) + 1
+    return acc
+  }, {})
 
   return (
-    <div className="mx-auto max-w-5xl space-y-6 p-6">
+    <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-slate-900">Vasooli — Batch Summary</h1>
@@ -72,18 +80,30 @@ export function SummaryView() {
         <p className="text-sm text-slate-500">Loading…</p>
       ) : (
         <>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <StatTile label="Total Cases" value={String(summary?.totalCases ?? 0)} />
             <StatTile
               label="Money Recovered"
               value={formatMoney(summary?.moneyRecovered ?? 0)}
               accent="success"
             />
+            <StatTile label="Escalated" value={String(escalatedCount)} accent={escalatedCount > 0 ? 'warning' : 'default'} />
           </div>
 
           <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <h2 className="mb-2 text-lg font-semibold text-slate-900">Tier Breakdown</h2>
-            <TierBreakdownChart tierBreakdown={summary?.tierBreakdown ?? {}} />
+            <h2 className="mb-2 text-lg font-semibold text-slate-900">Recovery Breakdown</h2>
+            <RecoveryBreakdown cases={cases} />
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
+            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <h2 className="mb-2 text-lg font-semibold text-slate-900">Tier Breakdown</h2>
+              <TierBreakdownChart tierBreakdown={summary?.tierBreakdown ?? {}} />
+            </div>
+            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+              <h2 className="mb-2 text-lg font-semibold text-slate-900">Root Cause Distribution</h2>
+              <RootCauseChart counts={rootCauseCounts} />
+            </div>
           </div>
 
           {disputedCaseExists && (
@@ -94,6 +114,11 @@ export function SummaryView() {
               1 case required a policy lockout — see why the system refused to act →
             </Link>
           )}
+
+          <div>
+            <h2 className="mb-2 text-lg font-semibold text-slate-900">Insights</h2>
+            <InsightsPanel cases={cases} />
+          </div>
 
           <div>
             <h2 className="mb-2 text-lg font-semibold text-slate-900">Cases</h2>

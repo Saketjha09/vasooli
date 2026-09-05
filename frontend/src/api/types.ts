@@ -27,7 +27,10 @@ export interface CaseSummary {
   tierChosen: string
   /** "processing" | "recovered" | "held" | "open" | "escalated" | "error" */
   status: string
+  /** Recovered amount if status is "recovered" — 0 otherwise (see transactionAmount for the original amount regardless of outcome). */
   amount: number
+  /** The original transaction amount, regardless of outcome — for "amount at risk" style aggregates that `amount` alone can't express. */
+  transactionAmount: number
 }
 
 /**

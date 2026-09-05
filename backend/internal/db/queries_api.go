@@ -4,15 +4,18 @@ import "context"
 
 // CaseRow is one case as the API layer needs it: the case's own fields plus
 // its recovered amount, derived from that case's most recent execution
-// audit_log entry (0/NULL if it never reached a "recovered" outcome).
+// audit_log entry (0/NULL if it never reached a "recovered" outcome), and
+// its underlying transaction's original amount regardless of outcome (for
+// dashboard "amount at risk" aggregates that Amount alone can't compute).
 type CaseRow struct {
-	CaseID        string
-	TransactionID string
-	RootCause     string
-	Confidence    float64
-	TierChosen    string
-	Status        string
-	Amount        float64
+	CaseID            string
+	TransactionID     string
+	RootCause         string
+	Confidence        float64
+	TierChosen        string
+	Status            string
+	Amount            float64
+	TransactionAmount float64
 }
 
 // ApiQueries is the subset of DB operations the API layer depends on, kept
@@ -84,8 +87,9 @@ func (d *DB) SummarizeCases(ctx context.Context) (int, map[string]int, float64, 
 func (d *DB) ListCasesSummary(ctx context.Context) ([]CaseRow, error) {
 	rows, err := d.Pool.Query(ctx, `
 		SELECT c.id, c.transaction_id, COALESCE(c.root_cause, ''), COALESCE(c.confidence, 0),
-		       COALESCE(c.tier_chosen, ''), c.status, COALESCE(latest_execution.amount, 0)
+		       COALESCE(c.tier_chosen, ''), c.status, COALESCE(latest_execution.amount, 0), t.amount
 		FROM cases c
+		JOIN transactions t ON t.id = c.transaction_id
 		`+caseRecoveredAmountJoin+`
 		ORDER BY c.id
 	`)
@@ -97,7 +101,7 @@ func (d *DB) ListCasesSummary(ctx context.Context) ([]CaseRow, error) {
 	var out []CaseRow
 	for rows.Next() {
 		var r CaseRow
-		if err := rows.Scan(&r.CaseID, &r.TransactionID, &r.RootCause, &r.Confidence, &r.TierChosen, &r.Status, &r.Amount); err != nil {
+		if err := rows.Scan(&r.CaseID, &r.TransactionID, &r.RootCause, &r.Confidence, &r.TierChosen, &r.Status, &r.Amount, &r.TransactionAmount); err != nil {
 			return nil, err
 		}
 		out = append(out, r)
@@ -109,11 +113,12 @@ func (d *DB) GetCaseByID(ctx context.Context, caseID string) (CaseRow, error) {
 	var r CaseRow
 	err := d.Pool.QueryRow(ctx, `
 		SELECT c.id, c.transaction_id, COALESCE(c.root_cause, ''), COALESCE(c.confidence, 0),
-		       COALESCE(c.tier_chosen, ''), c.status, COALESCE(latest_execution.amount, 0)
+		       COALESCE(c.tier_chosen, ''), c.status, COALESCE(latest_execution.amount, 0), t.amount
 		FROM cases c
+		JOIN transactions t ON t.id = c.transaction_id
 		`+caseRecoveredAmountJoin+`
 		WHERE c.id = $1
-	`, caseID).Scan(&r.CaseID, &r.TransactionID, &r.RootCause, &r.Confidence, &r.TierChosen, &r.Status, &r.Amount)
+	`, caseID).Scan(&r.CaseID, &r.TransactionID, &r.RootCause, &r.Confidence, &r.TierChosen, &r.Status, &r.Amount, &r.TransactionAmount)
 	return r, err
 }
 

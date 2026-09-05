@@ -36,14 +36,18 @@ type BatchSummaryDTO struct {
 // the recovered amount if the case's most recent execution outcome was
 // "recovered" (0 otherwise: no money has moved for that case, whether
 // because it's still open, held, escalated, or a promise was broken).
+// TransactionAmount is the original transaction amount regardless of
+// outcome — needed for "amount at risk" style aggregates the dashboard
+// can't compute from Amount alone.
 type CaseSummaryDTO struct {
-	CaseID        string  `json:"caseId"`
-	TransactionID string  `json:"transactionId"`
-	RootCause     string  `json:"rootCause"`
-	Confidence    float64 `json:"confidence"`
-	TierChosen    string  `json:"tierChosen"`
-	Status        string  `json:"status"` // "processing" | "recovered" | "held" | "open" | "escalated" | "error"
-	Amount        float64 `json:"amount"`
+	CaseID            string  `json:"caseId"`
+	TransactionID     string  `json:"transactionId"`
+	RootCause         string  `json:"rootCause"`
+	Confidence        float64 `json:"confidence"`
+	TierChosen        string  `json:"tierChosen"`
+	Status            string  `json:"status"` // "processing" | "recovered" | "held" | "open" | "escalated" | "error"
+	Amount            float64 `json:"amount"`
+	TransactionAmount float64 `json:"transactionAmount"`
 }
 
 // ReasoningStepDTO is ONE entry from that case's audit_log, in the exact
