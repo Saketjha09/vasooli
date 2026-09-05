@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom'
 import { getBatchSummary, listCases, runBatch } from '../api/client'
 import type { BatchSummary, CaseSummary } from '../api/types'
 import { CaseTable } from '../components/CaseTable'
+import { GuardrailPolicyCard } from '../components/GuardrailPolicyCard'
 import { InsightsPanel } from '../components/InsightsPanel'
 import { RecoveryBreakdown } from '../components/RecoveryBreakdown'
 import { RootCauseChart } from '../components/RootCauseChart'
@@ -105,6 +106,8 @@ export function SummaryView() {
               <RootCauseChart counts={rootCauseCounts} />
             </div>
           </div>
+
+          <GuardrailPolicyCard />
 
           {disputedCaseExists && (
             <Link

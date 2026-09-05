@@ -5,6 +5,7 @@ import type {
   BatchSummary,
   CaseDetail,
   CaseSummary,
+  GuardrailPolicy,
 } from './types'
 
 const BASE_URL = import.meta.env.VITE_API_BASE_URL ?? 'http://localhost:8080'
@@ -62,4 +63,9 @@ export function getCaseAudit(id: string): Promise<AuditEntry[]> {
 /** GET /api/guardrail/spotlight — the disputed-case lockout, pre-filtered server-side. */
 export function getGuardrailSpotlight(): Promise<CaseDetail> {
   return request<CaseDetail>('/api/guardrail/spotlight')
+}
+
+/** GET /api/guardrail/policy — the fixed caps, sourced from server config not case data. */
+export function getGuardrailPolicy(): Promise<GuardrailPolicy> {
+  return request<GuardrailPolicy>('/api/guardrail/policy')
 }

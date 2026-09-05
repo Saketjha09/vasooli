@@ -18,6 +18,18 @@ export interface BatchSummary {
   moneyRecovered: number
 }
 
+/**
+ * Response to GET /api/guardrail/policy — the fixed caps guardrail.Check
+ * enforces, sourced from server config, NOT derived from cases. Always
+ * available and non-empty regardless of whether any batch has run yet.
+ */
+export interface GuardrailPolicy {
+  maxContactAttempts: number
+  maxDiscountPct: number
+  contactWindowStart: number // hour, 0-23, inclusive
+  contactWindowEnd: number // hour, 0-23, exclusive
+}
+
 /** One row of GET /api/cases. */
 export interface CaseSummary {
   caseId: string
