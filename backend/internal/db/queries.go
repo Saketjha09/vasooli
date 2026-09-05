@@ -87,6 +87,10 @@ func (d *DB) EscalateCase(ctx context.Context, caseID string) error {
 // AuditEntry is one row of the audit_log table, per the MRD 4.7 shape:
 // input snapshot is implicit in Decision/Confidence/Alternatives being the
 // exact values the agent computed, not a separate re-serialized blob.
+//
+// Amount is nullable and populated only on the execution agent's own row —
+// added in migration 0003 because nothing else persisted Execution's
+// recovered amount for the API layer to query back out.
 type AuditEntry struct {
 	ID               string
 	CaseID           string
@@ -94,31 +98,32 @@ type AuditEntry struct {
 	Decision         string
 	Confidence       *float64
 	AlternativesJSON []string
+	Amount           *float64
 	Timestamp        time.Time
 }
 
 // AuditQueries is the subset of DB operations the Audit Log agent depends
 // on, kept as its own interface (same pattern as Queries/PromiseQueries).
 type AuditQueries interface {
-	InsertAuditEntry(ctx context.Context, caseID, agentName, decision string, confidence *float64, alternatives []string) error
+	InsertAuditEntry(ctx context.Context, caseID, agentName, decision string, confidence *float64, alternatives []string, amount *float64) error
 	ListAuditLogForCase(ctx context.Context, caseID string) ([]AuditEntry, error)
 }
 
-func (d *DB) InsertAuditEntry(ctx context.Context, caseID, agentName, decision string, confidence *float64, alternatives []string) error {
+func (d *DB) InsertAuditEntry(ctx context.Context, caseID, agentName, decision string, confidence *float64, alternatives []string, amount *float64) error {
 	altJSON, err := json.Marshal(alternatives)
 	if err != nil {
 		return err
 	}
 	_, err = d.Pool.Exec(ctx, `
-		INSERT INTO audit_log (case_id, agent_name, decision, confidence, alternatives_json)
-		VALUES ($1, $2, $3, $4, $5)
-	`, caseID, agentName, decision, confidence, altJSON)
+		INSERT INTO audit_log (case_id, agent_name, decision, confidence, alternatives_json, amount)
+		VALUES ($1, $2, $3, $4, $5, $6)
+	`, caseID, agentName, decision, confidence, altJSON, amount)
 	return err
 }
 
 func (d *DB) ListAuditLogForCase(ctx context.Context, caseID string) ([]AuditEntry, error) {
 	rows, err := d.Pool.Query(ctx, `
-		SELECT id, case_id, agent_name, decision, confidence, alternatives_json, timestamp
+		SELECT id, case_id, agent_name, decision, confidence, alternatives_json, amount, timestamp
 		FROM audit_log
 		WHERE case_id = $1
 		ORDER BY timestamp, id
@@ -132,7 +137,7 @@ func (d *DB) ListAuditLogForCase(ctx context.Context, caseID string) ([]AuditEnt
 	for rows.Next() {
 		var e AuditEntry
 		var altJSON []byte
-		if err := rows.Scan(&e.ID, &e.CaseID, &e.AgentName, &e.Decision, &e.Confidence, &altJSON, &e.Timestamp); err != nil {
+		if err := rows.Scan(&e.ID, &e.CaseID, &e.AgentName, &e.Decision, &e.Confidence, &altJSON, &e.Amount, &e.Timestamp); err != nil {
 			return nil, err
 		}
 		if len(altJSON) > 0 {

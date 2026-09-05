@@ -39,11 +39,12 @@ type LogEntry struct {
 	Decision     string
 	Confidence   *float64 // nil where an agent has no confidence score (Guardrail, Execution, Promise)
 	Alternatives []string // see package doc for what this holds per agent
+	Amount       *float64 // nil except on the execution agent's own entry (see db.AuditEntry.Amount)
 }
 
 // Log persists one agent's decision for one case.
 func Log(ctx context.Context, q db.AuditQueries, entry LogEntry) error {
-	return q.InsertAuditEntry(ctx, entry.CaseID, entry.AgentName, entry.Decision, entry.Confidence, entry.Alternatives)
+	return q.InsertAuditEntry(ctx, entry.CaseID, entry.AgentName, entry.Decision, entry.Confidence, entry.Alternatives, entry.Amount)
 }
 
 // ListForCase retrieves a case's full decision chain, in the order agents

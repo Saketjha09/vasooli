@@ -12,7 +12,7 @@ type fakeAuditQueries struct {
 	nextID  int
 }
 
-func (f *fakeAuditQueries) InsertAuditEntry(ctx context.Context, caseID, agentName, decision string, confidence *float64, alternatives []string) error {
+func (f *fakeAuditQueries) InsertAuditEntry(ctx context.Context, caseID, agentName, decision string, confidence *float64, alternatives []string, amount *float64) error {
 	f.nextID++
 	f.entries = append(f.entries, db.AuditEntry{
 		ID:               string(rune('a' + f.nextID)),
@@ -21,6 +21,7 @@ func (f *fakeAuditQueries) InsertAuditEntry(ctx context.Context, caseID, agentNa
 		Decision:         decision,
 		Confidence:       confidence,
 		AlternativesJSON: alternatives,
+		Amount:           amount,
 	})
 	return nil
 }

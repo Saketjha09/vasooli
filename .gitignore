@@ -1,0 +1,45 @@
+# ---- Secrets & environment — NEVER commit these ----
+.env
+.env.local
+.env.*.local
+*.pem
+*.key
+*.crt
+secrets.json
+**/service-account*.json
+
+# ---- Go (backend/) ----
+backend/vasooli
+backend/bin/
+*.exe
+*.test
+*.out
+coverage.out
+coverage.html
+vendor/
+
+# ---- Node / React (frontend/) ----
+frontend/node_modules/
+frontend/dist/
+frontend/build/
+frontend/.vite/
+frontend/.cache/
+node_modules/
+
+# ---- Local databases / dumps ----
+*.sql.gz
+pgdata/
+*.dump
+
+# ---- IDE / editor ----
+.vscode/
+.idea/
+*.swp
+
+# ---- OS noise ----
+.DS_Store
+Thumbs.db
+
+# ---- Logs ----
+*.log
+npm-debug.log*

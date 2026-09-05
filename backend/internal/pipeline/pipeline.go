@@ -169,9 +169,13 @@ func processDecision(ctx context.Context, q Queries, cfg Config, st *caseState, 
 		// fails this one case safely rather than crashing the batch run.
 		outcome = execution.ExecutionOutcome{CaseID: st.caseID, Result: "internal_error", Evidence: []string{err.Error()}}
 	}
+	var amount *float64
+	if outcome.Amount != 0 {
+		amount = &outcome.Amount
+	}
 	if err := audit.Log(ctx, q, audit.LogEntry{
 		CaseID: st.caseID, AgentName: audit.AgentExecution, Decision: outcome.Result,
-		Alternatives: outcome.Evidence,
+		Alternatives: outcome.Evidence, Amount: amount,
 	}); err != nil {
 		return err
 	}
