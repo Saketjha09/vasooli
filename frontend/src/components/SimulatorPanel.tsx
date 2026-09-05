@@ -85,17 +85,27 @@ export function SimulatorPanel({ policy, label }: { policy: GuardrailPolicy | nu
             onChange={(e) => setHistoryScore(Number(e.target.value))}
             className="w-full rounded-control border border-ring px-3 py-1.5 text-sm"
           />
+          <p className="mt-1 text-xs text-ink-muted">
+            Only changes the outcome for willful_nonpayment cases — 40 or above gets an 8% incentive offer instead of
+            escalation.
+          </p>
         </div>
 
         <div className="flex flex-wrap gap-6">
-          <label className="flex items-center gap-2 text-sm text-ink-secondary">
-            <input type="checkbox" checked={disputedFlag} onChange={(e) => setDisputedFlag(e.target.checked)} />
-            Disputed
-          </label>
-          <label className="flex items-center gap-2 text-sm text-ink-secondary">
-            <input type="checkbox" checked={doNotContact} onChange={(e) => setDoNotContact(e.target.checked)} />
-            Do Not Contact
-          </label>
+          <div>
+            <label className="flex items-center gap-2 text-sm text-ink-secondary">
+              <input type="checkbox" checked={disputedFlag} onChange={(e) => setDisputedFlag(e.target.checked)} />
+              Disputed
+            </label>
+            <p className="mt-1 text-xs text-ink-muted">Overrides every other field — always escalates, blocked from contact.</p>
+          </div>
+          <div>
+            <label className="flex items-center gap-2 text-sm text-ink-secondary">
+              <input type="checkbox" checked={doNotContact} onChange={(e) => setDoNotContact(e.target.checked)} />
+              Do Not Contact
+            </label>
+            <p className="mt-1 text-xs text-ink-muted">Hard block on contact, independent of Disputed — also escalates.</p>
+          </div>
         </div>
 
         <div>
