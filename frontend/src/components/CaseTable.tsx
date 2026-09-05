@@ -1,4 +1,4 @@
-import { Fragment, useMemo, useState } from 'react'
+import { Fragment, useMemo, useState, type Dispatch, type SetStateAction } from 'react'
 import { Link } from 'react-router-dom'
 import { getCase } from '../api/client'
 import type { CaseDetail, CaseSummary } from '../api/types'
@@ -13,7 +13,7 @@ import {
 } from '../lib/format'
 import { StatusBadge } from './StatusBadge'
 
-type SortColumn = 'rootCause' | 'tierChosen' | 'status' | 'confidence' | 'transactionAmount'
+type SortColumn = 'rootCause' | 'tierChosen' | 'status' | 'confidence' | 'transactionAmount' | 'amount'
 type SortDirection = 'asc' | 'desc'
 
 const TIER_OPTIONS = ['silent_retry', 'nudge', 'incentivized_nudge', 'escalate']
@@ -144,11 +144,20 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
   const [expanded, setExpanded] = useState<Set<string>>(new Set())
   const [previewCache, setPreviewCache] = useState<Record<string, CaseDetail | 'loading' | 'error'>>({})
 
-  const toggleSet = (set: Set<string>, setter: (s: Set<string>) => void, value: string) => {
-    const next = new Set(set)
-    if (next.has(value)) next.delete(value)
-    else next.add(value)
-    setter(next)
+  // Functional updater form, deliberately: computing `next` from a `set`
+  // value captured by closure (the previous version) breaks under React's
+  // automatic batching when multiple pill clicks land close enough together
+  // to be batched before a re-render occurs between them — each call would
+  // compute `next` from the SAME stale base, silently dropping all but the
+  // last click's effect. Reading from `prev` inside the updater always sees
+  // the latest pending state, regardless of click timing.
+  const toggleSet = (setter: Dispatch<SetStateAction<Set<string>>>, value: string) => {
+    setter((prev) => {
+      const next = new Set(prev)
+      if (next.has(value)) next.delete(value)
+      else next.add(value)
+      return next
+    })
   }
 
   const handleSort = (column: SortColumn) => {
@@ -176,12 +185,21 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
     setExpanded(next)
   }
 
+  // "Every option in a category selected" is treated the SAME as "none
+  // selected" (no filter on that dimension) explicitly, rather than relying
+  // solely on the emergent fact that a case's value must be in a full-size
+  // Set — that's a correct but implicit property, and stays correct even
+  // if the option list and Set ever diverge for some other reason.
+  const tierFilterActive = tierFilter.size > 0 && tierFilter.size < TIER_OPTIONS.length
+  const statusFilterActive = statusFilter.size > 0 && statusFilter.size < STATUS_OPTIONS.length
+  const rootCauseFilterActive = rootCauseFilter.size > 0 && rootCauseFilter.size < ROOT_CAUSE_OPTIONS.length
+
   const visibleCases = useMemo(() => {
     const q = search.trim().toLowerCase()
     let result = cases.filter((c) => {
-      if (tierFilter.size > 0 && !tierFilter.has(c.tierChosen)) return false
-      if (statusFilter.size > 0 && !statusFilter.has(c.status)) return false
-      if (rootCauseFilter.size > 0 && !rootCauseFilter.has(c.rootCause)) return false
+      if (tierFilterActive && !tierFilter.has(c.tierChosen)) return false
+      if (statusFilterActive && !statusFilter.has(c.status)) return false
+      if (rootCauseFilterActive && !rootCauseFilter.has(c.rootCause)) return false
       if (q) {
         const haystack = `${c.rootCause} ${c.tierChosen} ${c.status} ${c.caseId}`.toLowerCase()
         if (!haystack.includes(q)) return false
@@ -191,7 +209,7 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
 
     result = [...result].sort((a, b) => {
       let cmp = 0
-      if (sortColumn === 'confidence' || sortColumn === 'transactionAmount') {
+      if (sortColumn === 'confidence' || sortColumn === 'transactionAmount' || sortColumn === 'amount') {
         cmp = a[sortColumn] - b[sortColumn]
       } else {
         cmp = String(a[sortColumn]).localeCompare(String(b[sortColumn]))
@@ -201,7 +219,26 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
     })
 
     return result
-  }, [cases, search, tierFilter, statusFilter, rootCauseFilter, sortColumn, sortDirection])
+  }, [
+    cases,
+    search,
+    tierFilter,
+    statusFilter,
+    rootCauseFilter,
+    tierFilterActive,
+    statusFilterActive,
+    rootCauseFilterActive,
+    sortColumn,
+    sortDirection,
+  ])
+
+  const hasActiveFilters = search.trim() !== '' || tierFilter.size > 0 || statusFilter.size > 0 || rootCauseFilter.size > 0
+  const clearFilters = () => {
+    setSearch('')
+    setTierFilter(new Set())
+    setStatusFilter(new Set())
+    setRootCauseFilter(new Set())
+  }
 
   if (cases.length === 0) {
     return <p className="text-sm text-slate-500">No cases yet — run the batch to load the demo dataset.</p>
@@ -220,25 +257,32 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
         <div className="flex flex-wrap gap-4">
           <div>
             <p className="mb-1 text-xs font-semibold text-slate-500 uppercase">Tier</p>
-            <FilterPills options={TIER_OPTIONS} selected={tierFilter} onToggle={(v) => toggleSet(tierFilter, setTierFilter, v)} labelFor={tierLabel} />
+            <FilterPills options={TIER_OPTIONS} selected={tierFilter} onToggle={(v) => toggleSet(setTierFilter, v)} labelFor={tierLabel} />
           </div>
           <div>
             <p className="mb-1 text-xs font-semibold text-slate-500 uppercase">Status</p>
-            <FilterPills options={STATUS_OPTIONS} selected={statusFilter} onToggle={(v) => toggleSet(statusFilter, setStatusFilter, v)} labelFor={statusLabel} />
+            <FilterPills options={STATUS_OPTIONS} selected={statusFilter} onToggle={(v) => toggleSet(setStatusFilter, v)} labelFor={statusLabel} />
           </div>
           <div>
             <p className="mb-1 text-xs font-semibold text-slate-500 uppercase">Root Cause</p>
             <FilterPills
               options={ROOT_CAUSE_OPTIONS}
               selected={rootCauseFilter}
-              onToggle={(v) => toggleSet(rootCauseFilter, setRootCauseFilter, v)}
+              onToggle={(v) => toggleSet(setRootCauseFilter, v)}
               labelFor={rootCauseLabel}
             />
           </div>
         </div>
-        <p className="text-xs text-slate-500">
-          Showing {visibleCases.length} of {cases.length} cases
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-slate-500">
+            Showing {visibleCases.length} of {cases.length} cases
+          </p>
+          {hasActiveFilters && (
+            <button type="button" onClick={clearFilters} className="text-xs font-medium text-slate-600 underline hover:text-slate-900">
+              Clear filters
+            </button>
+          )}
+        </div>
       </div>
 
       <div className="overflow-x-auto rounded-lg border border-slate-200">
@@ -253,6 +297,14 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
               <SortHeader
                 column="transactionAmount"
                 label="Amount"
+                sortColumn={sortColumn}
+                sortDirection={sortDirection}
+                onSort={handleSort}
+                align="right"
+              />
+              <SortHeader
+                column="amount"
+                label="Recovered"
                 sortColumn={sortColumn}
                 sortDirection={sortDirection}
                 onSort={handleSort}
@@ -300,10 +352,13 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
                       <StatusBadge status={c.status} />
                     </td>
                     <td className="px-3 py-1.5 text-right text-slate-700">{formatMoney(c.transactionAmount)}</td>
+                    <td className="px-3 py-1.5 text-right text-slate-700">
+                      {c.status === 'recovered' ? formatMoney(c.amount) : <span className="text-slate-400">—</span>}
+                    </td>
                   </tr>
                   {isExpanded && (
                     <tr>
-                      <td colSpan={6} className="p-0">
+                      <td colSpan={7} className="p-0">
                         <ExpandedPreview detail={previewCache[c.caseId] ?? 'loading'} />
                       </td>
                     </tr>
