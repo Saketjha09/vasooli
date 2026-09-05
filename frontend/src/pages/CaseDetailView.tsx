@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { Link, useParams } from 'react-router-dom'
 import { getCase, getCaseAudit } from '../api/client'
 import type { AuditEntry, CaseDetail } from '../api/types'
+import { MessagePreview } from '../components/MessagePreview'
 import { ReasoningChain } from '../components/ReasoningChain'
 import { StatusBadge } from '../components/StatusBadge'
 import { agentLabel, formatConfidence, formatMoney, formatTimestamp, tierLabel } from '../lib/format'
@@ -68,6 +69,12 @@ export function CaseDetailView() {
             <h2 className="mb-3 text-xs font-bold tracking-wide text-ink-muted uppercase">Reasoning Chain</h2>
             <ReasoningChain steps={caseDetail.reasoningChain} />
           </div>
+
+          <MessagePreview
+            rootCause={caseDetail.rootCause}
+            tierChosen={caseDetail.tierChosen}
+            transactionAmount={caseDetail.transactionAmount}
+          />
 
           <details className="rounded-card bg-white p-5 shadow-card">
             <summary className="cursor-pointer text-sm font-semibold text-ink-secondary select-none">

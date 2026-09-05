@@ -76,4 +76,56 @@ describe('CaseSimulator', () => {
     act(() => disputedCheckbox.click())
     expect(failureCodeSelect.disabled).toBe(true)
   })
+
+  it('Compare mode renders two independent panels, each running its own simulation', async () => {
+    vi.spyOn(client, 'getGuardrailPolicy').mockResolvedValue({
+      maxContactAttempts: 3,
+      maxDiscountPct: 10,
+      contactWindowStart: 9,
+      contactWindowEnd: 20,
+    })
+    const simulateSpy = vi.spyOn(client, 'simulateCase').mockResolvedValue({
+      rootCause: 'card_expired',
+      confidence: 0.95,
+      diagnosisEvidence: ['failure_code=CARD_EXPIRED'],
+      tierChosen: 'nudge',
+      strategyAlternatives: ['a', 'b', 'c'],
+      guardrailAllowed: true,
+      guardrailHeld: false,
+      guardrailFinalTier: 'nudge',
+      guardrailRuleFired: '',
+      guardrailReason: 'all checks passed',
+      guardrailEvidence: [],
+    })
+
+    render(
+      <MemoryRouter>
+        <CaseSimulator />
+      </MemoryRouter>,
+    )
+
+    // Off by default: exactly one panel, one "Run Simulation" button.
+    expect(screen.getAllByText('Run Simulation')).toHaveLength(1)
+
+    act(() => screen.getByLabelText('Compare two scenarios').click())
+
+    const runButtons = screen.getAllByText('Run Simulation')
+    expect(runButtons).toHaveLength(2)
+    expect(screen.getByText('Scenario A')).toBeTruthy()
+    expect(screen.getByText('Scenario B')).toBeTruthy()
+
+    // Each panel's inputs are independent — panel-scoped IDs, not shared.
+    const failureCodeSelects = screen.getAllByLabelText('Failure Code') as HTMLSelectElement[]
+    expect(failureCodeSelects).toHaveLength(2)
+    expect(failureCodeSelects[0].id).not.toBe(failureCodeSelects[1].id)
+
+    // Running only Scenario A's panel doesn't fire Scenario B's.
+    await act(async () => {
+      runButtons[0].click()
+    })
+    expect(simulateSpy).toHaveBeenCalledTimes(1)
+
+    const chains = await screen.findAllByText('Simulated — not a real transaction')
+    expect(chains).toHaveLength(1)
+  })
 })

@@ -230,7 +230,7 @@ func (s *Server) buildCaseDetail(ctx context.Context, caseID string) (CaseDetail
 	dto := CaseDetailDTO{
 		CaseID: row.CaseID, TransactionID: row.TransactionID, RootCause: row.RootCause,
 		Confidence: row.Confidence, TierChosen: row.TierChosen, Status: row.Status,
-		Amount: row.Amount, ReasoningChain: chain,
+		Amount: row.Amount, TransactionAmount: row.TransactionAmount, ReasoningChain: chain,
 	}
 	return dto, nil
 }

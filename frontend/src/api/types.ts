@@ -80,7 +80,9 @@ export interface CaseDetail {
   confidence: number
   tierChosen: string
   status: string
+  /** Recovered amount — 0 unless status is "recovered". Use transactionAmount for the original amount regardless of outcome. */
   amount: number
+  transactionAmount: number
   reasoningChain: ReasoningStep[]
 }
 

@@ -91,15 +91,19 @@ type ReasoningStepDTO struct {
 // the one disputed-flag case). ReasoningChain is the full, ordered
 // diagnosis -> ... -> promise decision trail — see ReasoningStepDTO's doc
 // comment for how a cycle-2 (tier-3 upgrade) case is represented in it.
+// TransactionAmount is the original transaction amount regardless of
+// outcome — Amount alone is the recovered amount (0 for unresolved cases),
+// the wrong number for anything that needs the case's real dollar value.
 type CaseDetailDTO struct {
-	CaseID         string             `json:"caseId"`
-	TransactionID  string             `json:"transactionId"`
-	RootCause      string             `json:"rootCause"`
-	Confidence     float64            `json:"confidence"`
-	TierChosen     string             `json:"tierChosen"`
-	Status         string             `json:"status"`
-	Amount         float64            `json:"amount"`
-	ReasoningChain []ReasoningStepDTO `json:"reasoningChain"`
+	CaseID            string             `json:"caseId"`
+	TransactionID     string             `json:"transactionId"`
+	RootCause         string             `json:"rootCause"`
+	Confidence        float64            `json:"confidence"`
+	TierChosen        string             `json:"tierChosen"`
+	Status            string             `json:"status"`
+	Amount            float64            `json:"amount"`
+	TransactionAmount float64            `json:"transactionAmount"`
+	ReasoningChain    []ReasoningStepDTO `json:"reasoningChain"`
 }
 
 // GuardrailPolicyDTO is the response to GET /api/guardrail/policy — the
