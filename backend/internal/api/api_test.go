@@ -190,10 +190,26 @@ func TestAPI_FullBatchLifecycle(t *testing.T) {
 		t.Errorf("raw audit log length (%d) should match reasoning chain length (%d)", len(auditEntries), len(detail.ReasoningChain))
 	}
 
-	// Not-found case.
-	rec = doRequest(t, mux, "GET", "/api/cases/does-not-exist", nil)
+	// Not-found case: both /api/cases/:id and /api/cases/:id/audit must
+	// agree on a clean 404, not leak the underlying Postgres SQLSTATE
+	// 22P02 (invalid_text_representation) error a malformed UUID
+	// path segment triggers.
+	var caseErr ErrorDTO
+	rec = doRequest(t, mux, "GET", "/api/cases/does-not-exist", &caseErr)
 	if rec.Code != http.StatusNotFound {
-		t.Errorf("expected 404 for unknown case ID, got %d", rec.Code)
+		t.Errorf("GET /api/cases/does-not-exist: expected 404, got %d: %s", rec.Code, rec.Body.String())
+	}
+	if caseErr.Error != "case not found" {
+		t.Errorf("GET /api/cases/does-not-exist: expected clean 'case not found' message, got %q", caseErr.Error)
+	}
+
+	var auditErr ErrorDTO
+	rec = doRequest(t, mux, "GET", "/api/cases/does-not-exist/audit", &auditErr)
+	if rec.Code != http.StatusNotFound {
+		t.Errorf("GET /api/cases/does-not-exist/audit: expected 404, got %d: %s", rec.Code, rec.Body.String())
+	}
+	if auditErr.Error != "case not found" {
+		t.Errorf("GET /api/cases/does-not-exist/audit: expected clean 'case not found' message, got %q (must not leak SQLSTATE)", auditErr.Error)
 	}
 }
 

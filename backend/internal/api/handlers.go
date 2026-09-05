@@ -114,6 +114,10 @@ func (s *Server) handleGetCaseAudit(w http.ResponseWriter, r *http.Request) {
 	caseID := r.PathValue("id")
 	entries, err := audit.ListForCase(r.Context(), s.Queries, caseID)
 	if err != nil {
+		if isNotFound(err) {
+			writeError(w, http.StatusNotFound, errors.New("case not found"))
+			return
+		}
 		writeError(w, http.StatusInternalServerError, err)
 		return
 	}
