@@ -146,8 +146,9 @@ type ExecutionOutcome struct {
 | `/api/cases/:id` | GET | Full reasoning chain for one case (diagnosis → tier → guardrail → outcome) |
 | `/api/cases/:id/audit` | GET | Raw audit log entries for one case |
 | `/api/guardrail/spotlight` | GET | The disputed-case lockout example, pre-filtered for the dashboard callout |
+| `/api/guardrail/policy` | GET | The current fixed caps (max contact attempts, max discount %, contact-hours window) for the dashboard's policy panel — sourced from `guardrail.Caps`, not a DB query |
 
-All endpoints read from Postgres via `/internal/db` — no direct frontend-to-Supabase connection, per your call above.
+All endpoints read from Postgres via `/internal/db` — no direct frontend-to-Supabase connection, per your call above. `/api/guardrail/policy` is the one exception: it's read-only config display, sourced directly from the running server's `guardrail.Caps`, not persisted state.
 
 ## 5. Deployment Topology
 

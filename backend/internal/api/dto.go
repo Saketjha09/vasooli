@@ -102,6 +102,16 @@ type CaseDetailDTO struct {
 	ReasoningChain []ReasoningStepDTO `json:"reasoningChain"`
 }
 
+// GuardrailPolicyDTO is the response to GET /api/guardrail/policy — the
+// fixed caps guardrail.Check enforces on every case, exposed read-only for
+// the dashboard's policy panel. Mirrors guardrail.Caps field-for-field.
+type GuardrailPolicyDTO struct {
+	MaxContactAttempts int     `json:"maxContactAttempts"`
+	MaxDiscountPct     float64 `json:"maxDiscountPct"`
+	ContactWindowStart int     `json:"contactWindowStart"` // hour, 0-23, inclusive
+	ContactWindowEnd   int     `json:"contactWindowEnd"`   // hour, 0-23, exclusive
+}
+
 // AuditEntryDTO is one row of GET /api/cases/:id/audit — the raw audit log,
 // minimally shaped (an ID and CaseID added, since this endpoint is meant as
 // the un-opinionated full record, unlike ReasoningStepDTO which is already

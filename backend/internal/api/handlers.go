@@ -55,6 +55,7 @@ func (s *Server) Routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/cases/{id}", s.handleGetCase)
 	mux.HandleFunc("GET /api/cases/{id}/audit", s.handleGetCaseAudit)
 	mux.HandleFunc("GET /api/guardrail/spotlight", s.handleGuardrailSpotlight)
+	mux.HandleFunc("GET /api/guardrail/policy", s.handleGuardrailPolicy)
 }
 
 func (s *Server) handleBatchRun(w http.ResponseWriter, r *http.Request) {
@@ -148,6 +149,20 @@ func (s *Server) handleGuardrailSpotlight(w http.ResponseWriter, r *http.Request
 		return
 	}
 	writeJSON(w, http.StatusOK, dto)
+}
+
+// handleGuardrailPolicy exposes the caps guardrail.Check actually enforces
+// on every case — sourced from PipelineCfg.Caps (the same value RunBatch
+// uses), not a separately hardcoded copy, so the dashboard can never drift
+// from what's really enforced.
+func (s *Server) handleGuardrailPolicy(w http.ResponseWriter, r *http.Request) {
+	caps := s.PipelineCfg.Caps
+	writeJSON(w, http.StatusOK, GuardrailPolicyDTO{
+		MaxContactAttempts: caps.MaxContactAttempts,
+		MaxDiscountPct:     caps.MaxDiscountPct,
+		ContactWindowStart: caps.ContactWindowStart,
+		ContactWindowEnd:   caps.ContactWindowEnd,
+	})
 }
 
 // buildCaseDetail is shared by GET /api/cases/:id and GET
