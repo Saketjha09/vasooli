@@ -127,6 +127,38 @@ type AuditEntryDTO struct {
 	Timestamp    time.Time `json:"timestamp"`
 }
 
+// SimulateRequestDTO is the body of POST /api/simulate — a hypothetical
+// case's inputs, not a real transaction. FailureCode is required unless
+// DisputedFlag is true (diagnosis.Classify checks disputed status first,
+// unconditionally, before ever looking at the failure code).
+type SimulateRequestDTO struct {
+	FailureCode          string `json:"failureCode"`
+	HistoryScore         int    `json:"historyScore"`
+	DisputedFlag         bool   `json:"disputedFlag"`
+	DoNotContact         bool   `json:"doNotContact"`
+	SimulatedHour        int    `json:"simulatedHour"`
+	PriorContactAttempts int    `json:"priorContactAttempts"`
+}
+
+// SimulateResponseDTO is the response to POST /api/simulate: the genuine
+// output of diagnosis.Classify -> strategy.SelectTier -> guardrail.Check
+// run against the hypothetical inputs, nothing persisted. TierChosen is
+// Strategy's own pick before guardrail; GuardrailFinalTier may differ if
+// guardrail blocked or held it.
+type SimulateResponseDTO struct {
+	RootCause            string   `json:"rootCause"`
+	Confidence           float64  `json:"confidence"`
+	DiagnosisEvidence    []string `json:"diagnosisEvidence"`
+	TierChosen           string   `json:"tierChosen"`
+	StrategyAlternatives []string `json:"strategyAlternatives"`
+	GuardrailAllowed     bool     `json:"guardrailAllowed"`
+	GuardrailHeld        bool     `json:"guardrailHeld"`
+	GuardrailFinalTier   string   `json:"guardrailFinalTier"`
+	GuardrailRuleFired   string   `json:"guardrailRuleFired"`
+	GuardrailReason      string   `json:"guardrailReason"`
+	GuardrailEvidence    []string `json:"guardrailEvidence"`
+}
+
 // ErrorDTO is the JSON body for any non-2xx response.
 type ErrorDTO struct {
 	Error string `json:"error"`

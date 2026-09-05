@@ -11,7 +11,11 @@ import (
 
 	"vasooli/internal/audit"
 	"vasooli/internal/db"
+	"vasooli/internal/detector"
+	"vasooli/internal/diagnosis"
+	"vasooli/internal/guardrail"
 	"vasooli/internal/pipeline"
+	"vasooli/internal/strategy"
 )
 
 // invalidUUIDInputCode is Postgres SQLSTATE 22P02 (invalid_text_representation)
@@ -56,6 +60,7 @@ func (s *Server) Routes(mux *http.ServeMux) {
 	mux.HandleFunc("GET /api/cases/{id}/audit", s.handleGetCaseAudit)
 	mux.HandleFunc("GET /api/guardrail/spotlight", s.handleGuardrailSpotlight)
 	mux.HandleFunc("GET /api/guardrail/policy", s.handleGuardrailPolicy)
+	mux.HandleFunc("POST /api/simulate", s.handleSimulate)
 }
 
 func (s *Server) handleBatchRun(w http.ResponseWriter, r *http.Request) {
@@ -162,6 +167,44 @@ func (s *Server) handleGuardrailPolicy(w http.ResponseWriter, r *http.Request) {
 		MaxDiscountPct:     caps.MaxDiscountPct,
 		ContactWindowStart: caps.ContactWindowStart,
 		ContactWindowEnd:   caps.ContactWindowEnd,
+	})
+}
+
+// handleSimulate runs a hypothetical case's inputs through the real
+// diagnosis.Classify -> strategy.SelectTier -> guardrail.Check chain —
+// the exact same package functions the pipeline calls, not a second copy
+// of the decision logic. Deliberately stateless: no case is created, no
+// audit_log entry is written, nothing is persisted. Amount/TransactionID/
+// CustomerID/CreatedAt are left zero-valued on the synthetic event since
+// none of them affect diagnosis/strategy/guardrail's decisions — only
+// Execution (never reached here) cares about amount.
+func (s *Server) handleSimulate(w http.ResponseWriter, r *http.Request) {
+	var req SimulateRequestDTO
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		writeError(w, http.StatusBadRequest, errors.New("invalid request body"))
+		return
+	}
+
+	event := detector.Event{
+		FailureCode:  req.FailureCode,
+		HistoryScore: req.HistoryScore,
+		DisputedFlag: req.DisputedFlag,
+		DoNotContact: req.DoNotContact,
+	}
+
+	diag, err := diagnosis.Classify(event, "")
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err)
+		return
+	}
+	decision := strategy.SelectTier(diag, req.HistoryScore)
+	guard := guardrail.Check(decision, event, s.PipelineCfg.Caps, req.SimulatedHour, req.PriorContactAttempts)
+
+	writeJSON(w, http.StatusOK, SimulateResponseDTO{
+		RootCause: diag.RootCause, Confidence: diag.Confidence, DiagnosisEvidence: diag.Evidence,
+		TierChosen: decision.Tier, StrategyAlternatives: decision.Alternatives,
+		GuardrailAllowed: guard.Allowed, GuardrailHeld: guard.Held, GuardrailFinalTier: guard.FinalTier,
+		GuardrailRuleFired: guard.RuleFired, GuardrailReason: guard.Reason, GuardrailEvidence: guard.Evidence,
 	})
 }
 

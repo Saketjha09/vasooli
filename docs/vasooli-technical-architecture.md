@@ -147,8 +147,9 @@ type ExecutionOutcome struct {
 | `/api/cases/:id/audit` | GET | Raw audit log entries for one case |
 | `/api/guardrail/spotlight` | GET | The disputed-case lockout example, pre-filtered for the dashboard callout |
 | `/api/guardrail/policy` | GET | The current fixed caps (max contact attempts, max discount %, contact-hours window) for the dashboard's policy panel — sourced from `guardrail.Caps`, not a DB query |
+| `/api/simulate` | POST | Case simulator: runs a hypothetical case's inputs through the real `diagnosis.Classify -> strategy.SelectTier -> guardrail.Check` chain and returns the result directly — stateless, no case created, nothing persisted |
 
-All endpoints read from Postgres via `/internal/db` — no direct frontend-to-Supabase connection, per your call above. `/api/guardrail/policy` is the one exception: it's read-only config display, sourced directly from the running server's `guardrail.Caps`, not persisted state.
+All endpoints read from Postgres via `/internal/db` — no direct frontend-to-Supabase connection, per your call above. `/api/guardrail/policy` and `/api/simulate` are the two exceptions: the former is read-only config display sourced directly from the running server's `guardrail.Caps`, and the latter is a stateless computation over the real pipeline package functions — neither touches Postgres.
 
 ## 5. Deployment Topology
 
