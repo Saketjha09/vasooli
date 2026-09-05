@@ -9,11 +9,14 @@ interface Bucket {
   amount: number
 }
 
+// Same 3 status hexes as index.css's --color-good/--color-warn/--color-critical
+// (inline styles need real values here since segment width is computed, not a
+// static Tailwind class) — kept in sync manually since there are only 4 buckets.
 const BUCKET_ORDER: { key: string; label: string; color: string; statuses: string[] }[] = [
-  { key: 'recovered', label: 'Recovered', color: '#10b981', statuses: ['recovered'] },
-  { key: 'escalated', label: 'Escalated', color: '#ef4444', statuses: ['escalated'] },
-  { key: 'open', label: 'Open', color: '#f59e0b', statuses: ['open', 'held', 'processing'] },
-  { key: 'error', label: 'Error', color: '#6b7280', statuses: ['error'] },
+  { key: 'recovered', label: 'Recovered', color: '#0ca30c', statuses: ['recovered'] },
+  { key: 'escalated', label: 'Escalated', color: '#d03b3b', statuses: ['escalated'] },
+  { key: 'open', label: 'Open', color: '#fab219', statuses: ['open', 'held', 'processing'] },
+  { key: 'error', label: 'Error', color: '#898781', statuses: ['error'] },
 ]
 
 /**
@@ -39,15 +42,15 @@ export function RecoveryBreakdown({ cases }: { cases: CaseSummary[] }) {
   const totalAtRisk = cases.reduce((sum, c) => sum + c.transactionAmount, 0)
 
   if (cases.length === 0) {
-    return <p className="text-sm text-slate-500">No cases yet.</p>
+    return <p className="text-sm text-ink-secondary">No cases yet.</p>
   }
 
   return (
     <div>
-      <p className="mb-2 text-sm text-slate-600">
-        Total At Risk: <span className="font-semibold text-slate-900">{formatMoney(totalAtRisk)}</span>
+      <p className="mb-2 text-sm text-ink-secondary">
+        Total At Risk: <span className="font-semibold text-ink">{formatMoney(totalAtRisk)}</span>
       </p>
-      <div className="flex h-6 w-full overflow-hidden rounded-md border border-slate-200">
+      <div className="flex h-6 w-full overflow-hidden rounded-control">
         {buckets.map((b) => (
           <div
             key={b.key}
@@ -60,9 +63,9 @@ export function RecoveryBreakdown({ cases }: { cases: CaseSummary[] }) {
         {buckets.map((b) => (
           <div key={b.key} className="flex items-center gap-1.5">
             <span className="h-2.5 w-2.5 rounded-full" style={{ backgroundColor: b.color }} aria-hidden />
-            <span className="text-slate-700">
-              {b.label}: <span className="font-medium text-slate-900">{formatMoney(b.amount)}</span>{' '}
-              <span className="text-slate-500">
+            <span className="text-ink-secondary">
+              {b.label}: <span className="font-medium text-ink">{formatMoney(b.amount)}</span>{' '}
+              <span className="text-ink-muted">
                 ({b.count} case{b.count === 1 ? '' : 's'})
               </span>
             </span>

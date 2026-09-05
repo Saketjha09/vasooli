@@ -30,7 +30,7 @@ export function RootCauseChart({ counts }: RootCauseChartProps) {
         const words = label.split(' ')
         return (
           <g key={c.cause}>
-            <text x={x + BAR_WIDTH / 2} y={y - 8} textAnchor="middle" className="fill-slate-700 text-sm font-semibold">
+            <text x={x + BAR_WIDTH / 2} y={y - 8} textAnchor="middle" className="fill-ink text-sm font-semibold">
               {c.count}
             </text>
             <rect x={x} y={y} width={BAR_WIDTH} height={Math.max(barHeight, 2)} rx={4} fill={ROOT_CAUSE_COLORS[c.cause]} />
@@ -40,7 +40,7 @@ export function RootCauseChart({ counts }: RootCauseChartProps) {
                 x={x + BAR_WIDTH / 2}
                 y={CHART_HEIGHT + 16 + wi * 14}
                 textAnchor="middle"
-                className="fill-slate-600 text-[11px]"
+                className="fill-ink-muted text-[11px]"
               >
                 {word}
               </text>

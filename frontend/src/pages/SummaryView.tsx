@@ -60,25 +60,25 @@ export function SummaryView() {
     <div className="mx-auto max-w-6xl space-y-6 p-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900">Vasooli — Batch Summary</h1>
-          <p className="text-sm text-slate-500">AI revenue recovery: diagnosis, strategy, and guardrails, fully explainable.</p>
+          <h1 className="text-2xl font-bold tracking-tight text-ink">Vasooli — Batch Summary</h1>
+          <p className="text-sm text-ink-secondary">AI revenue recovery: diagnosis, strategy, and guardrails, fully explainable.</p>
         </div>
         <button
           type="button"
           onClick={handleRunBatch}
           disabled={running}
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-50"
+          className="rounded-control bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink-secondary disabled:opacity-50"
         >
           {running ? 'Running…' : 'Run Batch'}
         </button>
       </div>
 
       {error && (
-        <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>
+        <p className="rounded-card bg-critical-bg p-3 text-sm text-critical-text">{error}</p>
       )}
 
       {loading ? (
-        <p className="text-sm text-slate-500">Loading…</p>
+        <p className="text-sm text-ink-secondary">Loading…</p>
       ) : (
         <>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
@@ -91,25 +91,25 @@ export function SummaryView() {
             <StatTile label="Escalated" value={String(escalatedCount)} accent={escalatedCount > 0 ? 'warning' : 'default'} />
           </div>
 
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <h2 className="mb-2 text-lg font-semibold text-slate-900">Recovery Breakdown</h2>
+          <div className="rounded-card bg-white p-5 shadow-card">
+            <h2 className="mb-3 text-xs font-bold tracking-wide text-ink-muted uppercase">Recovery Breakdown</h2>
             <RecoveryBreakdown cases={cases} />
           </div>
 
           <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
-            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <h2 className="mb-2 text-lg font-semibold text-slate-900">Tier Breakdown</h2>
+            <div className="rounded-card bg-white p-5 shadow-card">
+              <h2 className="mb-3 text-xs font-bold tracking-wide text-ink-muted uppercase">Tier Breakdown</h2>
               <TierBreakdownChart tierBreakdown={summary?.tierBreakdown ?? {}} />
             </div>
-            <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-              <h2 className="mb-2 text-lg font-semibold text-slate-900">Root Cause Distribution</h2>
+            <div className="rounded-card bg-white p-5 shadow-card">
+              <h2 className="mb-3 text-xs font-bold tracking-wide text-ink-muted uppercase">Root Cause Distribution</h2>
               <RootCauseChart counts={rootCauseCounts} />
             </div>
           </div>
 
           <div className="space-y-2">
             <GuardrailPolicyCard />
-            <Link to="/simulate" className="inline-block text-sm font-medium text-slate-600 hover:text-slate-900 hover:underline">
+            <Link to="/simulate" className="inline-block text-sm font-medium text-ink-secondary hover:text-ink hover:underline">
               Try the simulator — test a hypothetical case against these rules →
             </Link>
           </div>
@@ -117,19 +117,19 @@ export function SummaryView() {
           {disputedCaseExists && (
             <Link
               to="/guardrail-spotlight"
-              className="block rounded-lg border border-amber-300 bg-amber-50 p-4 text-sm font-medium text-amber-900 hover:bg-amber-100"
+              className="block rounded-card bg-warn-bg p-4 text-sm font-medium text-warn-text hover:brightness-95"
             >
               1 case required a policy lockout — see why the system refused to act →
             </Link>
           )}
 
           <div>
-            <h2 className="mb-2 text-lg font-semibold text-slate-900">Insights</h2>
+            <h2 className="mb-3 text-xs font-bold tracking-wide text-ink-muted uppercase">Insights</h2>
             <InsightsPanel cases={cases} />
           </div>
 
           <div>
-            <h2 className="mb-2 text-lg font-semibold text-slate-900">Cases</h2>
+            <h2 className="mb-3 text-xs font-bold tracking-wide text-ink-muted uppercase">Cases</h2>
             <CaseTable cases={cases} />
           </div>
         </>

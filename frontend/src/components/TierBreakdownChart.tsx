@@ -5,11 +5,15 @@ interface TierBreakdownChartProps {
 }
 
 const TIER_ORDER = ['silent_retry', 'nudge', 'incentivized_nudge', 'escalate']
+
+// An ordinal single-hue ramp, not 4 unrelated categorical colors — the 4
+// tiers are a severity progression (increasing intervention intensity), so
+// this uses the same --color-tier-1..4 tokens as index.css, light to dark.
 const TIER_COLORS: Record<string, string> = {
-  silent_retry: '#0ea5e9', // sky
-  nudge: '#8b5cf6', // violet
-  incentivized_nudge: '#f59e0b', // amber
-  escalate: '#ef4444', // red
+  silent_retry: '#86b6ef',
+  nudge: '#5598e7',
+  incentivized_nudge: '#2a78d6',
+  escalate: '#184f95',
 }
 
 const CHART_HEIGHT = 160
@@ -44,7 +48,7 @@ export function TierBreakdownChart({ tierBreakdown }: TierBreakdownChartProps) {
               x={x + BAR_WIDTH / 2}
               y={y - 8}
               textAnchor="middle"
-              className="fill-slate-700 text-sm font-semibold"
+              className="fill-ink text-sm font-semibold"
             >
               {t.count}
             </text>
@@ -60,7 +64,7 @@ export function TierBreakdownChart({ tierBreakdown }: TierBreakdownChartProps) {
               x={x + BAR_WIDTH / 2}
               y={CHART_HEIGHT + 20}
               textAnchor="middle"
-              className="fill-slate-600 text-xs"
+              className="fill-ink-muted text-xs"
             >
               {tierLabel(t.tier)}
             </text>

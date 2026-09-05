@@ -72,13 +72,19 @@ export const ROOT_CAUSE_ORDER = [
   'disputed',
 ]
 
+// Fixed-order categorical palette (validated: worst adjacent CVD ΔE 9.1,
+// normal-vision ΔE 19.6 — see the dataviz skill's palette validator).
+// "disputed" deliberately reuses the critical status red instead of a 6th
+// categorical hue: disputed cases deterministically always escalate, so
+// tying its chart color to the same red used for escalated/blocked status
+// everywhere else is a genuine semantic link, not an arbitrary 6th color.
 export const ROOT_CAUSE_COLORS: Record<string, string> = {
-  transient_gateway: '#0ea5e9', // sky
-  card_expired: '#8b5cf6', // violet
-  insufficient_funds: '#f59e0b', // amber
-  checkout_friction: '#ec4899', // pink
-  willful_nonpayment: '#f97316', // orange
-  disputed: '#ef4444', // red
+  transient_gateway: '#2a78d6',
+  card_expired: '#eb6834',
+  insufficient_funds: '#1baf7a',
+  checkout_friction: '#eda100',
+  willful_nonpayment: '#e87ba4',
+  disputed: '#d03b3b',
 }
 
 /**

@@ -49,8 +49,8 @@ function FilterPills({
             onClick={() => onToggle(opt)}
             className={`rounded-full border px-2.5 py-1 text-xs font-medium transition-colors ${
               active
-                ? 'border-slate-900 bg-slate-900 text-white'
-                : 'border-slate-300 bg-white text-slate-600 hover:bg-slate-50'
+                ? 'border-ink bg-ink text-white'
+                : 'border-ring bg-white text-ink-secondary hover:bg-page'
             }`}
           >
             {labelFor(opt)}
@@ -78,8 +78,8 @@ function SortHeader({
 }) {
   const active = sortColumn === column
   return (
-    <th className={`px-3 py-2 font-semibold text-slate-600 ${align === 'right' ? 'text-right' : 'text-left'}`}>
-      <button type="button" onClick={() => onSort(column)} className="inline-flex items-center gap-1 hover:text-slate-900">
+    <th className={`px-3 py-2 font-semibold text-ink-secondary ${align === 'right' ? 'text-right' : 'text-left'}`}>
+      <button type="button" onClick={() => onSort(column)} className="inline-flex items-center gap-1 hover:text-ink">
         {label}
         {active && <span aria-hidden>{sortDirection === 'asc' ? '▲' : '▼'}</span>}
       </button>
@@ -90,10 +90,10 @@ function SortHeader({
 /** Pure display — fetching/caching is owned by CaseTable (see previewCache) so re-expanding a row doesn't refetch. */
 function ExpandedPreview({ detail }: { detail: CaseDetail | 'loading' | 'error' }) {
   if (detail === 'loading') {
-    return <p className="p-3 text-xs text-slate-500">Loading preview…</p>
+    return <p className="p-3 text-xs text-ink-muted">Loading preview…</p>
   }
   if (detail === 'error') {
-    return <p className="p-3 text-xs text-red-600">Failed to load preview.</p>
+    return <p className="p-3 text-xs text-critical-text">Failed to load preview.</p>
   }
 
   const byAgent = (name: string) => detail.reasoningChain.find((s) => s.agentName === name)
@@ -103,30 +103,30 @@ function ExpandedPreview({ detail }: { detail: CaseDetail | 'loading' | 'error' 
   const execution = byAgent('execution')
 
   return (
-    <div className="space-y-1 border-t border-slate-100 bg-slate-50 p-3 text-xs text-slate-600">
+    <div className="space-y-1 border-t border-ring bg-page p-3 text-xs text-ink-secondary">
       {diagnosis && (
         <p>
-          <span className="font-semibold text-slate-700">{agentLabel('diagnosis')}:</span>{' '}
+          <span className="font-semibold text-ink">{agentLabel('diagnosis')}:</span>{' '}
           {diagnosis.alternatives[0] ?? diagnosis.decision}
         </p>
       )}
       {strategy && (
         <p>
-          <span className="font-semibold text-slate-700">{agentLabel('strategy')}:</span> chose {tierLabel(strategy.decision)}
+          <span className="font-semibold text-ink">{agentLabel('strategy')}:</span> chose {tierLabel(strategy.decision)}
           {strategy.alternatives[0] && <> — {strategy.alternatives[0]}</>}
         </p>
       )}
       {guardrail && (
         <p>
-          <span className="font-semibold text-slate-700">{agentLabel('guardrail')}:</span> {guardrail.decision}
+          <span className="font-semibold text-ink">{agentLabel('guardrail')}:</span> {guardrail.decision}
         </p>
       )}
       {execution && (
         <p>
-          <span className="font-semibold text-slate-700">{agentLabel('execution')}:</span> {execution.decision}
+          <span className="font-semibold text-ink">{agentLabel('execution')}:</span> {execution.decision}
         </p>
       )}
-      <Link to={`/cases/${detail.caseId}`} className="inline-block pt-1 font-medium text-slate-900 hover:underline">
+      <Link to={`/cases/${detail.caseId}`} className="inline-block pt-1 font-medium text-ink hover:underline">
         View full case →
       </Link>
     </div>
@@ -241,30 +241,30 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
   }
 
   if (cases.length === 0) {
-    return <p className="text-sm text-slate-500">No cases yet — run the batch to load the demo dataset.</p>
+    return <p className="text-sm text-ink-secondary">No cases yet — run the batch to load the demo dataset.</p>
   }
 
   return (
     <div className="space-y-3">
-      <div className="space-y-2 rounded-lg border border-slate-200 bg-white p-3">
+      <div className="space-y-3 rounded-card bg-white p-4 shadow-card">
         <input
           type="text"
           value={search}
           onChange={(e) => setSearch(e.target.value)}
           placeholder="Search root cause, tier, status, or case ID…"
-          className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm focus:border-slate-500 focus:outline-none"
+          className="w-full rounded-control border border-ring px-3 py-1.5 text-sm focus:border-ink-muted focus:outline-none"
         />
         <div className="flex flex-wrap gap-4">
           <div>
-            <p className="mb-1 text-xs font-semibold text-slate-500 uppercase">Tier</p>
+            <p className="mb-1 text-xs font-semibold tracking-wide text-ink-muted uppercase">Tier</p>
             <FilterPills options={TIER_OPTIONS} selected={tierFilter} onToggle={(v) => toggleSet(setTierFilter, v)} labelFor={tierLabel} />
           </div>
           <div>
-            <p className="mb-1 text-xs font-semibold text-slate-500 uppercase">Status</p>
+            <p className="mb-1 text-xs font-semibold tracking-wide text-ink-muted uppercase">Status</p>
             <FilterPills options={STATUS_OPTIONS} selected={statusFilter} onToggle={(v) => toggleSet(setStatusFilter, v)} labelFor={statusLabel} />
           </div>
           <div>
-            <p className="mb-1 text-xs font-semibold text-slate-500 uppercase">Root Cause</p>
+            <p className="mb-1 text-xs font-semibold tracking-wide text-ink-muted uppercase">Root Cause</p>
             <FilterPills
               options={ROOT_CAUSE_OPTIONS}
               selected={rootCauseFilter}
@@ -274,20 +274,20 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
           </div>
         </div>
         <div className="flex items-center justify-between">
-          <p className="text-xs text-slate-500">
+          <p className="text-xs text-ink-muted">
             Showing {visibleCases.length} of {cases.length} cases
           </p>
           {hasActiveFilters && (
-            <button type="button" onClick={clearFilters} className="text-xs font-medium text-slate-600 underline hover:text-slate-900">
+            <button type="button" onClick={clearFilters} className="text-xs font-medium text-ink-secondary underline hover:text-ink">
               Clear filters
             </button>
           )}
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-lg border border-slate-200">
-        <table className="min-w-full divide-y divide-slate-200 text-sm">
-          <thead className="bg-slate-50">
+      <div className="overflow-x-auto rounded-card bg-white shadow-card">
+        <table className="min-w-full divide-y divide-ring text-sm">
+          <thead className="bg-page">
             <tr>
               <th className="w-8 px-3 py-2" />
               <SortHeader column="rootCause" label="Root Cause" sortColumn={sortColumn} sortDirection={sortDirection} onSort={handleSort} />
@@ -312,34 +312,34 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
               />
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 bg-white">
+          <tbody className="divide-y divide-ring bg-white">
             {visibleCases.map((c) => {
               const isExpanded = expanded.has(c.caseId)
               const upgraded = isTierUpgraded(c)
               return (
                 <Fragment key={c.caseId}>
-                  <tr className="hover:bg-slate-50">
+                  <tr className="hover:bg-page">
                     <td className="px-3 py-1.5">
                       <button
                         type="button"
                         onClick={() => toggleExpanded(c.caseId)}
                         aria-label={isExpanded ? 'Collapse preview' : 'Expand preview'}
-                        className="text-slate-400 hover:text-slate-700"
+                        className="text-ink-muted hover:text-ink"
                       >
                         {isExpanded ? '▾' : '▸'}
                       </button>
                     </td>
                     <td className="px-3 py-1.5">
-                      <Link to={`/cases/${c.caseId}`} className="text-slate-900 hover:underline">
+                      <Link to={`/cases/${c.caseId}`} className="text-ink hover:underline">
                         {rootCauseLabel(c.rootCause)}
                       </Link>
                     </td>
-                    <td className="px-3 py-1.5 text-slate-700">
+                    <td className="px-3 py-1.5 text-ink-secondary">
                       <span className="inline-flex items-center gap-1.5">
                         {tierLabel(c.tierChosen)}
                         {upgraded && (
                           <span
-                            className="rounded-full bg-violet-100 px-1.5 py-0.5 text-[10px] font-semibold text-violet-700"
+                            className="rounded-full bg-info-bg px-1.5 py-0.5 text-[10px] font-semibold text-info-text"
                             title="Upgraded from nudge after it went unanswered (MRD tier 3)"
                           >
                             ⇧ Upgraded
@@ -347,13 +347,13 @@ export function CaseTable({ cases }: { cases: CaseSummary[] }) {
                         )}
                       </span>
                     </td>
-                    <td className="px-3 py-1.5 text-slate-700">{formatConfidence(c.confidence)}</td>
+                    <td className="px-3 py-1.5 text-ink-secondary">{formatConfidence(c.confidence)}</td>
                     <td className="px-3 py-1.5">
                       <StatusBadge status={c.status} />
                     </td>
-                    <td className="px-3 py-1.5 text-right text-slate-700">{formatMoney(c.transactionAmount)}</td>
-                    <td className="px-3 py-1.5 text-right text-slate-700">
-                      {c.status === 'recovered' ? formatMoney(c.amount) : <span className="text-slate-400">—</span>}
+                    <td className="px-3 py-1.5 text-right text-ink-secondary">{formatMoney(c.transactionAmount)}</td>
+                    <td className="px-3 py-1.5 text-right text-ink-secondary">
+                      {c.status === 'recovered' ? formatMoney(c.amount) : <span className="text-ink-muted">—</span>}
                     </td>
                   </tr>
                   {isExpanded && (

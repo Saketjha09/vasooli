@@ -35,30 +35,30 @@ export function GuardrailPolicyCard() {
   }, [])
 
   return (
-    <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-      <p className="text-sm text-slate-600">
+    <div className="rounded-card bg-white p-5 shadow-card">
+      <p className="text-sm text-ink-secondary">
         These fixed caps govern every automated decision below — no case can bypass them.
       </p>
 
-      {policy === 'loading' && <p className="mt-2 text-xs text-slate-400">Loading policy…</p>}
+      {policy === 'loading' && <p className="mt-2 text-xs text-ink-muted">Loading policy…</p>}
 
       {policy === 'error' && (
-        <p className="mt-2 text-xs text-slate-400">Policy details are temporarily unavailable.</p>
+        <p className="mt-2 text-xs text-ink-muted">Policy details are temporarily unavailable.</p>
       )}
 
       {policy !== 'loading' && policy !== 'error' && (
         <dl className="mt-3 grid grid-cols-1 gap-3 text-sm sm:grid-cols-3">
           <div>
-            <dt className="text-xs font-semibold text-slate-500 uppercase">Max Contact Attempts</dt>
-            <dd className="mt-0.5 font-medium text-slate-800">{policy.maxContactAttempts}</dd>
+            <dt className="text-xs font-semibold tracking-wide text-ink-muted uppercase">Max Contact Attempts</dt>
+            <dd className="mt-0.5 font-medium text-ink">{policy.maxContactAttempts}</dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold text-slate-500 uppercase">Max Discount</dt>
-            <dd className="mt-0.5 font-medium text-slate-800">{policy.maxDiscountPct}%</dd>
+            <dt className="text-xs font-semibold tracking-wide text-ink-muted uppercase">Max Discount</dt>
+            <dd className="mt-0.5 font-medium text-ink">{policy.maxDiscountPct}%</dd>
           </div>
           <div>
-            <dt className="text-xs font-semibold text-slate-500 uppercase">Contact Hours</dt>
-            <dd className="mt-0.5 font-medium text-slate-800">
+            <dt className="text-xs font-semibold tracking-wide text-ink-muted uppercase">Contact Hours</dt>
+            <dd className="mt-0.5 font-medium text-ink">
               {formatHour(policy.contactWindowStart)}–{formatHour(policy.contactWindowEnd)}
             </dd>
           </div>

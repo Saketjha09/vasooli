@@ -28,55 +28,55 @@ export function CaseDetailView() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <Link to="/" className="text-sm text-slate-500 hover:underline">
+      <Link to="/" className="text-sm text-ink-muted hover:underline">
         ← Back to summary
       </Link>
 
-      {loading && <p className="text-sm text-slate-500">Loading…</p>}
+      {loading && <p className="text-sm text-ink-secondary">Loading…</p>}
       {error && (
-        <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>
+        <p className="rounded-card bg-critical-bg p-3 text-sm text-critical-text">{error}</p>
       )}
 
       {caseDetail && (
         <>
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-card bg-white p-5 shadow-card">
             <div className="flex flex-wrap items-center justify-between gap-2">
-              <h1 className="text-xl font-bold text-slate-900">{caseDetail.rootCause}</h1>
+              <h1 className="text-xl font-bold tracking-tight text-ink">{caseDetail.rootCause}</h1>
               <StatusBadge status={caseDetail.status} />
             </div>
             <dl className="mt-3 grid grid-cols-2 gap-3 text-sm sm:grid-cols-4">
               <div>
-                <dt className="text-slate-500">Tier Chosen</dt>
-                <dd className="font-medium text-slate-900">{tierLabel(caseDetail.tierChosen)}</dd>
+                <dt className="text-ink-muted">Tier Chosen</dt>
+                <dd className="font-medium text-ink">{tierLabel(caseDetail.tierChosen)}</dd>
               </div>
               <div>
-                <dt className="text-slate-500">Confidence</dt>
-                <dd className="font-medium text-slate-900">{formatConfidence(caseDetail.confidence)}</dd>
+                <dt className="text-ink-muted">Confidence</dt>
+                <dd className="font-medium text-ink">{formatConfidence(caseDetail.confidence)}</dd>
               </div>
               <div>
-                <dt className="text-slate-500">Amount</dt>
-                <dd className="font-medium text-slate-900">{formatMoney(caseDetail.amount)}</dd>
+                <dt className="text-ink-muted">Amount</dt>
+                <dd className="font-medium text-ink">{formatMoney(caseDetail.amount)}</dd>
               </div>
               <div>
-                <dt className="text-slate-500">Case ID</dt>
-                <dd className="truncate font-mono text-xs text-slate-500">{caseDetail.caseId}</dd>
+                <dt className="text-ink-muted">Case ID</dt>
+                <dd className="truncate font-mono text-xs text-ink-muted">{caseDetail.caseId}</dd>
               </div>
             </dl>
           </div>
 
           <div>
-            <h2 className="mb-3 text-lg font-semibold text-slate-900">Reasoning Chain</h2>
+            <h2 className="mb-3 text-xs font-bold tracking-wide text-ink-muted uppercase">Reasoning Chain</h2>
             <ReasoningChain steps={caseDetail.reasoningChain} />
           </div>
 
-          <details className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-            <summary className="cursor-pointer text-sm font-semibold text-slate-700 select-none">
+          <details className="rounded-card bg-white p-5 shadow-card">
+            <summary className="cursor-pointer text-sm font-semibold text-ink-secondary select-none">
               View raw audit log ({auditLog.length} entries)
             </summary>
             <div className="mt-3 overflow-x-auto">
-              <table className="min-w-full divide-y divide-slate-200 text-xs">
+              <table className="min-w-full divide-y divide-ring text-xs">
                 <thead>
-                  <tr className="text-left text-slate-500">
+                  <tr className="text-left text-ink-muted">
                     <th className="py-1 pr-4">Timestamp</th>
                     <th className="py-1 pr-4">Agent</th>
                     <th className="py-1 pr-4">Decision</th>
@@ -85,10 +85,10 @@ export function CaseDetailView() {
                     <th className="py-1">Alternatives</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-100">
+                <tbody className="divide-y divide-ring">
                   {auditLog.map((entry) => (
                     <tr key={entry.id}>
-                      <td className="py-1 pr-4 whitespace-nowrap text-slate-500">
+                      <td className="py-1 pr-4 whitespace-nowrap text-ink-muted">
                         {formatTimestamp(entry.timestamp)}
                       </td>
                       <td className="py-1 pr-4">{agentLabel(entry.agentName)}</td>

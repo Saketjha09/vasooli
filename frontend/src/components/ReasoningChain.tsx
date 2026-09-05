@@ -20,40 +20,40 @@ const AGENT_DOT_COLORS: Record<string, string> = {
  */
 export function ReasoningChain({ steps }: { steps: ReasoningStep[] }) {
   if (steps.length === 0) {
-    return <p className="text-sm text-slate-500">No reasoning steps recorded for this case yet.</p>
+    return <p className="text-sm text-ink-secondary">No reasoning steps recorded for this case yet.</p>
   }
 
   return (
-    <ol className="relative space-y-6 border-l-2 border-slate-200 pl-6">
+    <ol className="relative space-y-6 border-l-2 border-ring pl-6">
       {steps.map((step, i) => (
         <li key={i} className="relative">
           <span
             className={`absolute -left-[31px] top-1 h-3.5 w-3.5 rounded-full ring-4 ring-white ${
-              AGENT_DOT_COLORS[step.agentName] ?? 'bg-slate-400'
+              AGENT_DOT_COLORS[step.agentName] ?? 'bg-ink-muted'
             }`}
             aria-hidden
           />
-          <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+          <div className="rounded-card bg-white p-4 shadow-card">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <AgentBadge agentName={step.agentName} />
-                <span className="text-base font-semibold text-slate-900">{step.decision}</span>
+                <span className="text-base font-semibold text-ink">{step.decision}</span>
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-500">
+              <div className="flex items-center gap-2 text-xs text-ink-muted">
                 {step.confidence !== undefined && (
-                  <span className="font-medium text-slate-700">
+                  <span className="font-medium text-ink-secondary">
                     {formatConfidence(step.confidence)} confidence
                   </span>
                 )}
                 {step.amount !== undefined && (
-                  <span className="font-medium text-emerald-700">{formatMoney(step.amount)}</span>
+                  <span className="font-medium text-good-text">{formatMoney(step.amount)}</span>
                 )}
                 <span>{formatTimestamp(step.timestamp)}</span>
               </div>
             </div>
             {step.alternatives.length > 0 && (
-              <details className="mt-2 text-sm text-slate-600">
-                <summary className="cursor-pointer font-medium text-slate-500 select-none">
+              <details className="mt-2 text-sm text-ink-secondary">
+                <summary className="cursor-pointer font-medium text-ink-muted select-none">
                   Why? ({agentLabel(step.agentName)} reasoning)
                 </summary>
                 <ul className="mt-2 list-inside list-disc space-y-1">

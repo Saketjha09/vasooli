@@ -93,20 +93,20 @@ export function CaseSimulator() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <Link to="/" className="text-sm text-slate-500 hover:underline">
+      <Link to="/" className="text-sm text-ink-muted hover:underline">
         ← Back to summary
       </Link>
 
       <div>
-        <h1 className="text-2xl font-bold text-slate-900">Case Simulator</h1>
-        <p className="text-sm text-slate-500">
+        <h1 className="text-2xl font-bold tracking-tight text-ink">Case Simulator</h1>
+        <p className="text-sm text-ink-secondary">
           Test the real diagnosis, strategy, and guardrail logic against a hypothetical case — no data is saved.
         </p>
       </div>
 
-      <div className="space-y-4 rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="space-y-4 rounded-card bg-white p-5 shadow-card">
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="failureCode">
+          <label className="mb-1 block text-sm font-medium text-ink-secondary" htmlFor="failureCode">
             Failure Code
           </label>
           <select
@@ -114,7 +114,7 @@ export function CaseSimulator() {
             value={failureCode}
             onChange={(e) => setFailureCode(e.target.value)}
             disabled={disputedFlag}
-            className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm disabled:cursor-not-allowed disabled:bg-slate-100 disabled:text-slate-400"
+            className="w-full rounded-control border border-ring px-3 py-1.5 text-sm disabled:cursor-not-allowed disabled:bg-page disabled:text-ink-muted"
           >
             {FAILURE_CODE_OPTIONS.map((opt) => (
               <option key={opt.code} value={opt.code}>
@@ -123,12 +123,12 @@ export function CaseSimulator() {
             ))}
           </select>
           {disputedFlag && (
-            <p className="mt-1 text-xs text-slate-500">Ignored — disputed cases always escalate regardless of failure code.</p>
+            <p className="mt-1 text-xs text-ink-muted">Ignored — disputed cases always escalate regardless of failure code.</p>
           )}
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="historyScore">
+          <label className="mb-1 block text-sm font-medium text-ink-secondary" htmlFor="historyScore">
             History Score (0–100)
           </label>
           <input
@@ -138,23 +138,23 @@ export function CaseSimulator() {
             max={100}
             value={historyScore}
             onChange={(e) => setHistoryScore(Number(e.target.value))}
-            className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+            className="w-full rounded-control border border-ring px-3 py-1.5 text-sm"
           />
         </div>
 
         <div className="flex flex-wrap gap-6">
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm text-ink-secondary">
             <input type="checkbox" checked={disputedFlag} onChange={(e) => setDisputedFlag(e.target.checked)} />
             Disputed
           </label>
-          <label className="flex items-center gap-2 text-sm text-slate-700">
+          <label className="flex items-center gap-2 text-sm text-ink-secondary">
             <input type="checkbox" checked={doNotContact} onChange={(e) => setDoNotContact(e.target.checked)} />
             Do Not Contact
           </label>
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="simulatedHour">
+          <label className="mb-1 block text-sm font-medium text-ink-secondary" htmlFor="simulatedHour">
             Hour of Day (0–23)
           </label>
           <input
@@ -164,10 +164,10 @@ export function CaseSimulator() {
             max={23}
             value={simulatedHour}
             onChange={(e) => setSimulatedHour(Number(e.target.value))}
-            className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+            className="w-full rounded-control border border-ring px-3 py-1.5 text-sm"
           />
           {policy && (
-            <p className="mt-1 text-xs text-slate-500">
+            <p className="mt-1 text-xs text-ink-muted">
               Current allowed contact window: {String(policy.contactWindowStart).padStart(2, '0')}:00–
               {String(policy.contactWindowEnd).padStart(2, '0')}:00
             </p>
@@ -175,7 +175,7 @@ export function CaseSimulator() {
         </div>
 
         <div>
-          <label className="mb-1 block text-sm font-medium text-slate-700" htmlFor="priorContactAttempts">
+          <label className="mb-1 block text-sm font-medium text-ink-secondary" htmlFor="priorContactAttempts">
             Prior Contact Attempts
           </label>
           <input
@@ -184,30 +184,30 @@ export function CaseSimulator() {
             min={0}
             value={priorContactAttempts}
             onChange={(e) => setPriorContactAttempts(Number(e.target.value))}
-            className="w-full rounded-md border border-slate-300 px-3 py-1.5 text-sm"
+            className="w-full rounded-control border border-ring px-3 py-1.5 text-sm"
           />
-          {policy && <p className="mt-1 text-xs text-slate-500">Cap: {policy.maxContactAttempts} attempts</p>}
+          {policy && <p className="mt-1 text-xs text-ink-muted">Cap: {policy.maxContactAttempts} attempts</p>}
         </div>
 
         <button
           type="button"
           onClick={handleRun}
           disabled={running}
-          className="rounded-md bg-slate-900 px-4 py-2 text-sm font-semibold text-white hover:bg-slate-700 disabled:opacity-50"
+          className="rounded-control bg-ink px-4 py-2 text-sm font-semibold text-white hover:bg-ink-secondary disabled:opacity-50"
         >
           {running ? 'Running…' : 'Run Simulation'}
         </button>
       </div>
 
-      {error && <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>}
+      {error && <p className="rounded-card bg-critical-bg p-3 text-sm text-critical-text">{error}</p>}
 
       {result && (
         <div className="space-y-4">
-          <div className="rounded-lg border-2 border-dashed border-slate-300 bg-slate-50 p-4">
-            <p className="text-xs font-bold tracking-wide text-slate-500 uppercase">Simulated — not a real transaction</p>
-            <p className="mt-1 text-sm text-slate-700">
-              Final tier: <span className="font-semibold text-slate-900">{tierLabel(result.guardrailFinalTier)}</span> —{' '}
-              <span className="font-semibold text-slate-900">
+          <div className="rounded-card border-2 border-dashed border-ink-muted bg-page p-4">
+            <p className="text-xs font-bold tracking-wide text-ink-muted uppercase">Simulated — not a real transaction</p>
+            <p className="mt-1 text-sm text-ink-secondary">
+              Final tier: <span className="font-semibold text-ink">{tierLabel(result.guardrailFinalTier)}</span> —{' '}
+              <span className="font-semibold text-ink">
                 {result.guardrailAllowed ? 'Allowed' : result.guardrailHeld ? 'Held' : 'Blocked'}
               </span>
               {result.guardrailRuleFired && (

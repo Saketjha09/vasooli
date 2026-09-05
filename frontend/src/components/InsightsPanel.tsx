@@ -11,7 +11,7 @@ export function InsightsPanel({ cases }: { cases: CaseSummary[] }) {
 
   if (openCases.length === 0) {
     return (
-      <div className="rounded-lg border border-emerald-200 bg-emerald-50 p-4 text-sm text-emerald-800">
+      <div className="rounded-card bg-good-bg p-4 text-sm text-good-text">
         No open cases — the batch is fully processed.
       </div>
     )
@@ -35,12 +35,12 @@ export function InsightsPanel({ cases }: { cases: CaseSummary[] }) {
   return (
     <ul className="space-y-2">
       {sortedGroups.map((g) => (
-        <li key={g.rootCause} className="rounded-lg border border-slate-200 bg-white p-3 text-sm shadow-sm">
-          <span className="font-semibold text-slate-900">
+        <li key={g.rootCause} className="rounded-card bg-white p-4 text-sm shadow-card">
+          <span className="font-semibold text-ink">
             {g.count} case{g.count === 1 ? '' : 's'} stuck on {rootCauseLabel(g.rootCause)}
           </span>{' '}
-          <span className="text-slate-500">({formatMoney(g.amountAtRisk)} at risk)</span>
-          <span className="text-slate-700"> — {insightSuggestion(g.rootCause)}.</span>
+          <span className="text-ink-muted">({formatMoney(g.amountAtRisk)} at risk)</span>
+          <span className="text-ink-secondary"> — {insightSuggestion(g.rootCause)}.</span>
         </li>
       ))}
     </ul>

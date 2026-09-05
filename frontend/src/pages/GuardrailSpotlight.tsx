@@ -29,34 +29,34 @@ export function GuardrailSpotlight() {
 
   return (
     <div className="mx-auto max-w-3xl space-y-6 p-6">
-      <Link to="/" className="text-sm text-slate-500 hover:underline">
+      <Link to="/" className="text-sm text-ink-muted hover:underline">
         ← Back to summary
       </Link>
 
-      {loading && <p className="text-sm text-slate-500">Loading…</p>}
+      {loading && <p className="text-sm text-ink-secondary">Loading…</p>}
       {error && (
-        <p className="rounded-md border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</p>
+        <p className="rounded-card bg-critical-bg p-3 text-sm text-critical-text">{error}</p>
       )}
 
       {caseDetail && (
         <>
-          <div className="rounded-lg border-2 border-red-300 bg-red-50 p-6 shadow-sm">
-            <p className="text-xs font-bold tracking-wide text-red-700 uppercase">
+          <div className="rounded-card border-2 border-critical bg-critical-bg p-6 shadow-card">
+            <p className="text-xs font-bold tracking-wide text-critical-text uppercase">
               Policy Guardrail — Action Blocked
             </p>
-            <h1 className="mt-1 text-2xl font-bold text-red-900">
+            <h1 className="mt-1 text-2xl font-bold tracking-tight text-critical-text">
               This case was locked before any recovery action could fire.
             </h1>
-            <p className="mt-2 text-sm text-red-800">
+            <p className="mt-2 text-sm text-critical-text">
               Root cause: <strong>disputed</strong> ({formatConfidence(caseDetail.confidence)} confidence). A live
               dispute/chargeback flag means contacting this customer automatically would be compliance-unsafe —
               the Policy Guardrail Agent detected this before Execution ever ran, and routed the case straight
               to <strong>{tierLabel(caseDetail.tierChosen)}</strong> instead.
             </p>
             {guardrailStep && (
-              <div className="mt-4 rounded-md bg-white p-3 text-sm text-slate-800">
-                <p className="font-semibold text-slate-900">{guardrailStep.decision}</p>
-                <ul className="mt-1 list-inside list-disc text-slate-600">
+              <div className="mt-4 rounded-control bg-white p-3 text-sm text-ink-secondary">
+                <p className="font-semibold text-ink">{guardrailStep.decision}</p>
+                <ul className="mt-1 list-inside list-disc text-ink-secondary">
                   {guardrailStep.alternatives.map((alt, i) => (
                     <li key={i}>{alt}</li>
                   ))}
@@ -66,7 +66,7 @@ export function GuardrailSpotlight() {
           </div>
 
           <div>
-            <h2 className="mb-3 text-lg font-semibold text-slate-900">Full Reasoning Chain</h2>
+            <h2 className="mb-3 text-xs font-bold tracking-wide text-ink-muted uppercase">Full Reasoning Chain</h2>
             <ReasoningChain steps={caseDetail.reasoningChain} />
           </div>
         </>

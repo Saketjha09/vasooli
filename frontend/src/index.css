@@ -1,5 +1,79 @@
 @import "tailwindcss";
+@import "@fontsource/inter/400.css";
+@import "@fontsource/inter/500.css";
+@import "@fontsource/inter/600.css";
+@import "@fontsource/inter/700.css";
+@import "@fontsource/inter/800.css";
+
+/*
+ * Central design tokens for the visual polish pass — colors and typography
+ * only, per the approved palette proposal. Every component should read
+ * these Tailwind utilities (bg-good, text-critical-text, etc.) rather than
+ * picking its own ad hoc hue, so status/tier/root-cause colors stay
+ * consistent across stat tiles, badges, and chart bars.
+ *
+ * Status colors and the categorical/ordinal chart hues are sourced from the
+ * dataviz skill's validated default palette (references/palette.md),
+ * checked with its validator (scripts/validate_palette.js) before adoption
+ * — not eyeballed.
+ */
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  --color-page: #f9f9f7;
+  --color-ink: #0b0b0b;
+  --color-ink-secondary: #52514e;
+  --color-ink-muted: #898781;
+  --color-ring: rgba(11, 11, 11, 0.08);
+
+  /* Status palette (fixed — reused everywhere a status appears: badges,
+     stat tiles, recovery breakdown, chart bars). */
+  --color-good: #0ca30c;
+  --color-good-bg: #e7f7e8;
+  --color-good-text: #0a7d0a;
+  --color-warn: #fab219;
+  --color-warn-bg: #fef3d9;
+  --color-warn-text: #92600a;
+  --color-critical: #d03b3b;
+  --color-critical-bg: #fbe9e9;
+  --color-critical-text: #a52626;
+
+  /* A 4th "info" accent, distinct from the 3-color status system, for
+     non-status metadata badges (e.g. the tier-3 upgrade indicator) — tied
+     to the same blue family as the tier chart's identity, not reusing
+     "good" green (which would misleadingly read as a positive-outcome
+     signal for something that isn't one). */
+  --color-info: #2a78d6;
+  --color-info-bg: #e8f1fc;
+  --color-info-text: #1c5cab;
+
+  /* Tier Breakdown chart: an ordinal single-hue ramp, not 4 unrelated
+     categorical colors — the 4 tiers are a severity progression
+     (silent_retry -> nudge -> incentivized_nudge -> escalate), so lightness
+     increases with intervention intensity. */
+  --color-tier-1: #86b6ef;
+  --color-tier-2: #5598e7;
+  --color-tier-3: #2a78d6;
+  --color-tier-4: #184f95;
+
+  /* Root Cause chart: true categorical/identity data, fixed hue order.
+     "disputed" deliberately reuses --color-critical instead of a 6th
+     categorical hue — disputed cases deterministically always escalate. */
+  --color-rc-1: #2a78d6;
+  --color-rc-2: #eb6834;
+  --color-rc-3: #1baf7a;
+  --color-rc-4: #eda100;
+  --color-rc-5: #e87ba4;
+
+  /* One consistent card treatment: soft shadow instead of a hard border. */
+  --shadow-card: 0 1px 2px rgba(11, 11, 11, 0.06), 0 4px 10px -4px rgba(11, 11, 11, 0.08);
+  --radius-card: 0.75rem; /* 12px — cards/panels */
+  --radius-control: 0.5rem; /* 8px — buttons/inputs/selects */
+}
 
 body {
   margin: 0;
+  background: var(--color-page);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
 }
